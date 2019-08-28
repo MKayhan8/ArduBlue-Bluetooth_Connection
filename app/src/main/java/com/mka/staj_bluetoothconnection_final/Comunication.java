@@ -7,8 +7,11 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.Toast;
 
 import java.io.IOException;
@@ -22,6 +25,7 @@ public class Comunication extends AppCompatActivity {
     BluetoothSocket btSocket =null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
+    Button ledOn,LedOf;
 
     private boolean isBtConnected = false;
     static final UUID myUUID =UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -31,6 +35,38 @@ public class Comunication extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comunication);
+        Intent newintent=getIntent();
+        address = newintent.getStringExtra(MainActivity.Extra_ADRESS);
+
+        ledOn = findViewById(R.id.openLedID);
+        LedOf = findViewById(R.id.closeLedID);
+        ledOn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(btSocket != null)
+                {
+                    try {
+                        btSocket.getOutputStream().write("1".toString().getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+        LedOf.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(btSocket != null)
+                {
+                    try {
+                        btSocket.getOutputStream().write("2".toString().getBytes());
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
+
         new BTbaglan().execute();
     }
 

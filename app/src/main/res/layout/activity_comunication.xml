@@ -6,4 +6,26 @@
     android:layout_height="match_parent"
     tools:context=".Comunication">
 
+    <Button
+        android:id="@+id/openLedID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="56dp"
+        android:layout_marginLeft="56dp"
+        android:text="Open"
+        app:layout_constraintBottom_toBottomOf="@+id/closeLedID"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/closeLedID"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <Button
+        android:id="@+id/closeLedID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="156dp"
+        android:layout_marginEnd="47dp"
+        android:layout_marginRight="47dp"
+        android:text="Close"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>
