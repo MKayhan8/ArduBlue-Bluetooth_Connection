@@ -7,13 +7,14 @@
     tools:context=".MainActivity">
 
     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:id="@+id/linearLayout2"
+        android:layout_width="411dp"
+        android:layout_height="734dp"
         android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <Button
@@ -21,7 +22,17 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="@color/colorPrimary"
                 android:text="Bluetooth On"
+                android:textSize="18sp" />
+
+            <Button
+                android:id="@+id/devicesButtonID"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="#0000ff"
+                android:text="Devices"
                 android:textSize="18sp" />
 
             <Button
@@ -29,22 +40,25 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
+                android:background="#f80000"
                 android:text="Bluetooth Close"
                 android:textSize="18sp" />
 
-            <Button
-                android:id="@+id/devicesButtonID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Devices"
-                android:textSize="18sp" />
+
         </LinearLayout>
 
-        <ListView
-            android:id="@+id/devicesListviewID"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/devicesListviewID"
+                android:layout_width="match_parent"
+                android:layout_height="272dp" />
+        </LinearLayout>
 
     </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

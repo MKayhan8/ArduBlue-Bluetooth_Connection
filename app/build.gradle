@@ -5,7 +5,7 @@ android {
     buildToolsVersion "29.0.0"
     defaultConfig {
         applicationId "com.mka.staj_bluetoothconnection_final"
-        minSdkVersion 28
+        minSdkVersion 15
         targetSdkVersion 29
         versionCode 1
         versionName "1.0"

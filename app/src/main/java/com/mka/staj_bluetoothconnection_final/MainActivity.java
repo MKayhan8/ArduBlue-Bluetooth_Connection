@@ -8,11 +8,14 @@ import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,6 +26,8 @@ public class MainActivity extends AppCompatActivity {
 
     Intent btenablingIntent;
     int requestCodeForeEnable;
+    public static String Extra_ADRESS="device_adress";
+    ArrayAdapter<String> adapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,17 +53,18 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Set<BluetoothDevice> bt =myBluetoothAdapter.getBondedDevices();
-                String[] strings= new String[bt.size()];
-                int index=0;
+                ArrayList list = new ArrayList();
+
                 if(bt.size() >0)
                 {
+                    Toast.makeText(getApplicationContext(),"Devices Detected",Toast.LENGTH_SHORT).show();
                     for(BluetoothDevice device :bt )
                     {
-                        strings[index]= device.getName();
-                        index++;
+                        list.add(device.getName()+"\n"+device.getAddress());
                     }
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,strings);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,list);
                     listView.setAdapter(arrayAdapter);
+                    listView.setOnItemClickListener(selectDevice);
                 }
             }
         });
@@ -72,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
                 if(myBluetoothAdapter.isEnabled())
                 {
                     myBluetoothAdapter.disable();
+                    Toast.makeText(getApplicationContext(),"Bluetooth is Closed",Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -83,7 +90,7 @@ public class MainActivity extends AppCompatActivity {
         {
             if(resultCode == RESULT_OK)
             {
-                Toast.makeText(getApplicationContext(),"Bluetooth is Enable",Toast.LENGTH_LONG).show();
+                Toast.makeText(getApplicationContext(),"Bluetooth is Enable",Toast.LENGTH_SHORT).show();
             }
             else if (resultCode == RESULT_CANCELED)
             {
@@ -114,4 +121,15 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+    public AdapterView.OnItemClickListener selectDevice = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+            String info = ((TextView) view).getText().toString();
+            String adress = info.substring(info.length()-17);
+
+            Intent comIntent = new Intent(MainActivity.this,Comunication.class);
+            comIntent.putExtra(Extra_ADRESS,adress);
+            startActivity(comIntent);
+        }
+    };
 }
