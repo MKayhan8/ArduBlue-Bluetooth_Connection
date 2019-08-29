@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!--button color pressed -->
+    <item android:drawable="@android:color/holo_green_light" android:state_pressed="true"></item>
+    <!--button color normal -->
+    <item android:drawable="@android:color/transparent"></item>
+</selector>

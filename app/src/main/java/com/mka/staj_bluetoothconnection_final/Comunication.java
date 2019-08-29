@@ -56,6 +56,7 @@ public class Comunication extends AppCompatActivity {
         getdataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                getdataButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
                 if(btSocket != null)
                 {
                     try {
@@ -71,6 +72,7 @@ public class Comunication extends AppCompatActivity {
         ledOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               // ledOn.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
                 if(btSocket != null)
                 {
                     try {
@@ -100,7 +102,7 @@ public class Comunication extends AppCompatActivity {
 
     }
 
-    void beginListenForData()
+    void beginListenForData() // Gettin data from remote bluetooth device
     {
         final Handler handler = new Handler();
         final byte delimiter = 10; //This is the ASCII code for a newline character
@@ -135,7 +137,7 @@ public class Comunication extends AppCompatActivity {
                                     {
                                         public void run()
                                         {
-                                            textView.setText("Sıcaklık: "+data+" Celsius");
+                                            textView.setText(data);
                                         }
                                     });
                                 }
