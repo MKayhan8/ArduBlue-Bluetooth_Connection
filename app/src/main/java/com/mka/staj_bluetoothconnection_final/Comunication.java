@@ -10,11 +10,15 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.UUID;
 
 public class Comunication extends AppCompatActivity {
@@ -25,7 +29,15 @@ public class Comunication extends AppCompatActivity {
     BluetoothSocket btSocket =null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
-    Button ledOn,LedOf;
+    Button ledOn,LedOf,getdataButton;
+    TextView textView;
+    InputStream mmInputStream;
+    Thread workerThread;
+    byte[] readBuffer;
+    int readBufferPosition;
+    int counter;
+    volatile boolean stopWorker;
+
 
     private boolean isBtConnected = false;
     static final UUID myUUID =UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
@@ -37,9 +49,25 @@ public class Comunication extends AppCompatActivity {
         setContentView(R.layout.activity_comunication);
         Intent newintent=getIntent();
         address = newintent.getStringExtra(MainActivity.Extra_ADRESS);
-
+        textView = findViewById(R.id.receivedDataTextID);
         ledOn = findViewById(R.id.openLedID);
         LedOf = findViewById(R.id.closeLedID);
+        getdataButton = findViewById(R.id.getDataButtonID);
+        getdataButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(btSocket != null)
+                {
+                    try {
+                        mmInputStream=btSocket.getInputStream();
+                        beginListenForData();
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
         ledOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -47,6 +75,7 @@ public class Comunication extends AppCompatActivity {
                 {
                     try {
                         btSocket.getOutputStream().write("1".toString().getBytes());
+
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -68,7 +97,66 @@ public class Comunication extends AppCompatActivity {
         });
 
         new BTbaglan().execute();
+
     }
+
+    void beginListenForData()
+    {
+        final Handler handler = new Handler();
+        final byte delimiter = 10; //This is the ASCII code for a newline character
+
+        stopWorker = false;
+        readBufferPosition = 0;
+        readBuffer = new byte[1024];
+        workerThread = new Thread(new Runnable()
+        {
+            public void run()
+            {
+                while(!Thread.currentThread().isInterrupted() && !stopWorker)
+                {
+                    try
+                    {
+                        int bytesAvailable = mmInputStream.available();
+                        if(bytesAvailable > 0)
+                        {
+                            byte[] packetBytes = new byte[bytesAvailable];
+                            mmInputStream.read(packetBytes);
+                            for(int i=0;i<bytesAvailable;i++)
+                            {
+                                byte b = packetBytes[i];
+                                if(b == delimiter)
+                                {
+                                    byte[] encodedBytes = new byte[readBufferPosition];
+                                    System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
+                                    final String data = new String(encodedBytes, "US-ASCII");
+                                    readBufferPosition = 0;
+
+                                    handler.post(new Runnable()
+                                    {
+                                        public void run()
+                                        {
+                                            textView.setText(data);
+                                        }
+                                    });
+                                }
+                                else
+                                {
+                                    readBuffer[readBufferPosition++] = b;
+                                }
+                            }
+                        }
+                    }
+                    catch (IOException ex)
+                    {
+                        stopWorker = true;
+                    }
+                }
+            }
+        });
+
+        workerThread.start();
+    }
+
 
     private void Disconnect() {
         if (btSocket != null) {
@@ -108,6 +196,7 @@ public class Comunication extends AppCompatActivity {
                     btSocket = cihaz.createInsecureRfcommSocketToServiceRecord(myUUID);
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     btSocket.connect();
+
 
 
                 }

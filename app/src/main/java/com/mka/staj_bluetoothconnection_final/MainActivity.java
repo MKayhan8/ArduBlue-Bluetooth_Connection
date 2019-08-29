@@ -38,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         devicesButton = findViewById(R.id.devicesButtonID);
         listView = findViewById(R.id.devicesListviewID);
 
+
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); // Uygulamanın yüklü olduğu cihazda Bluetooth mı yok mu ?..
 
         btenablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
