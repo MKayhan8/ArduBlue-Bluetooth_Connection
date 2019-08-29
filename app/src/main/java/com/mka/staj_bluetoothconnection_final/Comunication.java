@@ -135,7 +135,7 @@ public class Comunication extends AppCompatActivity {
                                     {
                                         public void run()
                                         {
-                                            textView.setText(data);
+                                            textView.setText("Sıcaklık: "+data+" Celsius");
                                         }
                                     });
                                 }
