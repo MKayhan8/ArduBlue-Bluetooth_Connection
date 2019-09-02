@@ -62,35 +62,44 @@ public class Comunication extends AppCompatActivity {
         temperatureButton = findViewById(R.id.temperatureID);
         ledOn = findViewById(R.id.openLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
+        graphButton = findViewById(R.id.graphButtonID);
 
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
-        //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
-        // mpLineChart.setNoDataText("No Data");
-        //mpLineChart.setDrawGridBackground(true);
-        mpLineChart.setDrawBorders(true);
-        mpLineChart.setBorderColor(Color.BLUE);
-        mpLineChart.setBorderWidth(1);                      // </ editing line chart>
-
-        LineDataSet lineDataSet1 = new LineDataSet(dataValues1(),"Temperature");
-        // editing lines
-        lineDataSet1.setLineWidth(1);
-        lineDataSet1.setColor(Color.BLACK);
-        lineDataSet1.setDrawCircles(true);
-        lineDataSet1.setDrawCircleHole(true);
-        lineDataSet1.setCircleColor(Color.BLUE);
-        lineDataSet1.setCircleHoleColor(Color.BLACK);
-        lineDataSet1.setCircleRadius(5);
-        lineDataSet1.setCircleHoleRadius(3);
-        lineDataSet1.setValueTextColor(Color.BLACK);
-        lineDataSet1.setValueTextSize(10);
-        // </ editing lines >
-        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-        dataSets.add(lineDataSet1);
-        LineData data = new LineData(dataSets);
-        mpLineChart.setData(data);
-        mpLineChart.invalidate();
 
 
+        graphButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mpLineChart.setVisibility(View.VISIBLE);
+                textView.setText("Graph of datas until now");
+                //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
+                // mpLineChart.setNoDataText("No Data");
+                //mpLineChart.setDrawGridBackground(true);
+                mpLineChart.setDrawBorders(true);
+                mpLineChart.setBorderColor(Color.BLUE);
+                mpLineChart.setBorderWidth(2);                      // </ editing line chart>
+
+                LineDataSet lineDataSet1 = new LineDataSet(dataValues1(),"Temperature");
+                // editing lines
+                lineDataSet1.setLineWidth(2);
+                lineDataSet1.setColor(Color.BLACK);
+                lineDataSet1.setDrawCircles(true);
+                lineDataSet1.setDrawCircleHole(true);
+                lineDataSet1.setCircleColor(Color.BLUE);
+                lineDataSet1.setCircleHoleColor(Color.BLACK);
+                lineDataSet1.setCircleRadius(5);
+                lineDataSet1.setCircleHoleRadius(3);
+                lineDataSet1.setValueTextColor(Color.BLACK);
+                lineDataSet1.setValueTextSize(10);
+                // </ editing lines >
+                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                dataSets.add(lineDataSet1);
+                LineData data = new LineData(dataSets);
+                mpLineChart.setData(data);
+                mpLineChart.invalidate();
+
+            }
+        });
 
         getdataButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -130,6 +139,7 @@ public class Comunication extends AppCompatActivity {
         ledOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mpLineChart.setVisibility(View.INVISIBLE);
                 if(btSocket != null)
                 {
                     try {
@@ -197,7 +207,7 @@ public class Comunication extends AppCompatActivity {
                                     {
                                         public void run()
                                         {
-                                            textView.setText(data);
+                                            textView.setText("Current Sensor Data:"+data);
                                         }
                                     });
                                 }
