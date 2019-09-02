@@ -31,6 +31,10 @@ import java.util.UUID;
 public class Comunication extends AppCompatActivity {
 
     LineChart mpLineChart; // declaring line chart
+    ArrayList<Entry> dataVals = new ArrayList<Entry>();
+    int valueCounter=0;
+    float receivedFloatData;
+    String globalData;
 
     String address=null;
     private ProgressDialog  progress;
@@ -67,6 +71,7 @@ public class Comunication extends AppCompatActivity {
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
 
 
+
         graphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -79,7 +84,7 @@ public class Comunication extends AppCompatActivity {
                 mpLineChart.setBorderColor(Color.BLUE);
                 mpLineChart.setBorderWidth(2);                      // </ editing line chart>
 
-                LineDataSet lineDataSet1 = new LineDataSet(dataValues1(),"Temperature");
+                LineDataSet lineDataSet1 = new LineDataSet(dataVals,"Temperature");
                 // editing lines
                 lineDataSet1.setLineWidth(2);
                 lineDataSet1.setColor(Color.BLACK);
@@ -89,14 +94,14 @@ public class Comunication extends AppCompatActivity {
                 lineDataSet1.setCircleHoleColor(Color.BLACK);
                 lineDataSet1.setCircleRadius(5);
                 lineDataSet1.setCircleHoleRadius(3);
-                lineDataSet1.setValueTextColor(Color.BLACK);
+                lineDataSet1.setValueTextColor(Color.WHITE);
                 lineDataSet1.setValueTextSize(10);
                 // </ editing lines >
                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
                 dataSets.add(lineDataSet1);
                 LineData data = new LineData(dataSets);
                 mpLineChart.setData(data);
-                mpLineChart.invalidate();
+                 mpLineChart.invalidate();
 
             }
         });
@@ -139,11 +144,14 @@ public class Comunication extends AppCompatActivity {
         ledOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                //TimeUnit.SECONDS.sleep(1);
                 mpLineChart.setVisibility(View.INVISIBLE);
                 if(btSocket != null)
                 {
                     try {
                         btSocket.getOutputStream().write("2".toString().getBytes());
+                        textView.setText("LED IS ON");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -154,25 +162,18 @@ public class Comunication extends AppCompatActivity {
         new BTbaglan().execute();
 
     }
-    private ArrayList<Entry> dataValues1()
+    private void dataValues1() // 1
     {
-        ArrayList<Entry> dataVals = new ArrayList<Entry>();
-        dataVals.add(new Entry(0, (float) 20.3));
-        dataVals.add(new Entry(1,(float)24.1));
-        dataVals.add(new Entry(2,(float)22.2));
-        dataVals.add(new Entry(3,(float)27.4));
-        dataVals.add(new Entry(4,(float)24.6));
-        dataVals.add(new Entry(5,(float)27.4));
-        dataVals.add(new Entry(6,(float)21.6));
-        dataVals.add(new Entry(7,(float)19.4));
-        dataVals.add(new Entry(8,(float)25.6));
-        dataVals.add(new Entry(9,(float)27.4));
-        dataVals.add(new Entry(10,(float)24.6));
-        return dataVals;
+        receivedFloatData = Float.parseFloat(globalData);
+        dataVals.add(new Entry(valueCounter,  receivedFloatData));
+        valueCounter++;
+
+
+        //return dataVals;
     }
 
 
-    void beginListenForData() // Gettin data from remote bluetooth device
+    void beginListenForData() // Getting data from remote bluetooth device
     {
         final Handler handler = new Handler();
         final byte delimiter = 10; //This is the ASCII code for a newline character
@@ -208,6 +209,9 @@ public class Comunication extends AppCompatActivity {
                                         public void run()
                                         {
                                             textView.setText("Current Sensor Data:"+data);
+                                            globalData = data;
+                                            dataValues1();
+
                                         }
                                     });
                                 }

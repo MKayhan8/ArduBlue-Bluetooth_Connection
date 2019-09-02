@@ -4,7 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Comunication">
+    tools:context=".Comunication"
+    android:background="#151719">
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -22,25 +23,25 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/getDataButtonID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Get Data" />
-
-            <Button
                 android:id="@+id/openLedID"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="Led" />
 
             <Button
-                android:id="@+id/button8"
-                android:layout_width="wrap_content"
+                android:id="@+id/getDataButtonID"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="RGB LED" />
+                android:text="Get Data" />
+
+            <Button
+                android:id="@+id/button8"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Buzzer" />
 
         </LinearLayout>
 
@@ -51,25 +52,18 @@
 
             <Button
                 android:id="@+id/temperatureID"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Temperature"
-                android:drawable="@drawable/selector_button"/>
+                android:drawable="@drawable/selector_button"
+                android:text="Temperature" />
 
             <Button
-                android:id="@+id/button5"
-                android:layout_width="wrap_content"
+                android:id="@+id/graphButtonID"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Humunity" />
-
-            <Button
-                android:id="@+id/button7"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="Pressure" />
+                android:text="Temperature Graph" />
 
         </LinearLayout>
 
@@ -79,18 +73,18 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/graphButtonID"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/pressButtonID"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Graph" />
+                android:text="Humunity" />
 
             <Button
-                android:id="@+id/button6"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:id="@+id/Humı"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Acceleration" />
+                android:text=" Humunity Graph" />
 
         </LinearLayout>
 
@@ -100,13 +94,25 @@
             android:orientation="horizontal">
 
             <TextView
+                android:id="@+id/textView"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:textColor="#FFF"
+                android:text="2019/08/02"
+                android:textSize="18sp"
+                android:gravity="center"
+                />
+
+            <TextView
                 android:id="@+id/receivedDataTextID"
-                android:layout_width="wrap_content"
-                android:layout_height="42dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
-                android:text="TextView"
-                android:textSize="24sp" />
+                android:text="Information"
+                android:textColor="#FFF"
+                android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
@@ -124,6 +130,7 @@
                     android:id="@+id/line_chart"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+
 
                     />
 
