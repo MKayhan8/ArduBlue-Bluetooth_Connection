@@ -8,6 +8,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
@@ -16,12 +17,20 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
+
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
+import java.util.ArrayList;
 import java.util.UUID;
 
 public class Comunication extends AppCompatActivity {
+
+    LineChart mpLineChart; // declaring line chart
 
     String address=null;
     private ProgressDialog  progress;
@@ -29,7 +38,7 @@ public class Comunication extends AppCompatActivity {
     BluetoothSocket btSocket =null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
-    Button ledOn,LedOf,getdataButton;
+    Button ledOn,LedOf,getdataButton,temperatureButton,graphButton;
     TextView textView;
     InputStream mmInputStream;
     Thread workerThread;
@@ -50,9 +59,39 @@ public class Comunication extends AppCompatActivity {
         Intent newintent=getIntent();
         address = newintent.getStringExtra(MainActivity.Extra_ADRESS);
         textView = findViewById(R.id.receivedDataTextID);
+        temperatureButton = findViewById(R.id.temperatureID);
         ledOn = findViewById(R.id.openLedID);
-        LedOf = findViewById(R.id.closeLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
+
+        mpLineChart = (LineChart) findViewById(R.id.line_chart);
+        //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
+        // mpLineChart.setNoDataText("No Data");
+        //mpLineChart.setDrawGridBackground(true);
+        mpLineChart.setDrawBorders(true);
+        mpLineChart.setBorderColor(Color.BLUE);
+        mpLineChart.setBorderWidth(1);                      // </ editing line chart>
+
+        LineDataSet lineDataSet1 = new LineDataSet(dataValues1(),"Temperature");
+        // editing lines
+        lineDataSet1.setLineWidth(1);
+        lineDataSet1.setColor(Color.BLACK);
+        lineDataSet1.setDrawCircles(true);
+        lineDataSet1.setDrawCircleHole(true);
+        lineDataSet1.setCircleColor(Color.BLUE);
+        lineDataSet1.setCircleHoleColor(Color.BLACK);
+        lineDataSet1.setCircleRadius(5);
+        lineDataSet1.setCircleHoleRadius(3);
+        lineDataSet1.setValueTextColor(Color.BLACK);
+        lineDataSet1.setValueTextSize(10);
+        // </ editing lines >
+        ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+        dataSets.add(lineDataSet1);
+        LineData data = new LineData(dataSets);
+        mpLineChart.setData(data);
+        mpLineChart.invalidate();
+
+
+
         getdataButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -69,14 +108,18 @@ public class Comunication extends AppCompatActivity {
                 }
             }
         });
-        ledOn.setOnClickListener(new View.OnClickListener() {
+        temperatureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                // ledOn.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
                 if(btSocket != null)
                 {
                     try {
-                        btSocket.getOutputStream().write("1".toString().getBytes());
+                        if(isBtConnected)
+                            btSocket.getOutputStream().write("1".toString().getBytes());
+                        else
+                            Toast.makeText(getApplicationContext(),"Connection is Broken",Toast.LENGTH_LONG).show();
+
 
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -84,7 +127,7 @@ public class Comunication extends AppCompatActivity {
                 }
             }
         });
-        LedOf.setOnClickListener(new View.OnClickListener() {
+        ledOn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if(btSocket != null)
@@ -101,6 +144,23 @@ public class Comunication extends AppCompatActivity {
         new BTbaglan().execute();
 
     }
+    private ArrayList<Entry> dataValues1()
+    {
+        ArrayList<Entry> dataVals = new ArrayList<Entry>();
+        dataVals.add(new Entry(0, (float) 20.3));
+        dataVals.add(new Entry(1,(float)24.1));
+        dataVals.add(new Entry(2,(float)22.2));
+        dataVals.add(new Entry(3,(float)27.4));
+        dataVals.add(new Entry(4,(float)24.6));
+        dataVals.add(new Entry(5,(float)27.4));
+        dataVals.add(new Entry(6,(float)21.6));
+        dataVals.add(new Entry(7,(float)19.4));
+        dataVals.add(new Entry(8,(float)25.6));
+        dataVals.add(new Entry(9,(float)27.4));
+        dataVals.add(new Entry(10,(float)24.6));
+        return dataVals;
+    }
+
 
     void beginListenForData() // Gettin data from remote bluetooth device
     {
