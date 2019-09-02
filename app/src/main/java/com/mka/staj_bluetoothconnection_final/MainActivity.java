@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.content.Intent;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.AdapterView;
@@ -20,13 +21,13 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    Button buttonON,buttonOFF,devicesButton;
+    Button buttonON, buttonOFF, devicesButton;
     ListView listView;
     BluetoothAdapter myBluetoothAdapter;
 
     Intent btenablingIntent;
     int requestCodeForeEnable;
-    public static String Extra_ADRESS="device_adress";
+    public static String Extra_ADRESS = "device_adress";
     ArrayAdapter<String> adapter;
 
     @Override
@@ -36,13 +37,14 @@ public class MainActivity extends AppCompatActivity {
         buttonON = findViewById(R.id.openButtonID);
         buttonOFF = findViewById(R.id.closeButtonID);
         devicesButton = findViewById(R.id.devicesButtonID);
+
         listView = findViewById(R.id.devicesListviewID);
 
 
         myBluetoothAdapter = BluetoothAdapter.getDefaultAdapter(); // Uygulamanın yüklü olduğu cihazda Bluetooth mı yok mu ?..
 
         btenablingIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-        requestCodeForeEnable=1;
+        requestCodeForeEnable = 1;
 
         bluetoothONMethod();
         bluetoothOFMethod();
@@ -53,17 +55,15 @@ public class MainActivity extends AppCompatActivity {
         devicesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Set<BluetoothDevice> bt =myBluetoothAdapter.getBondedDevices();
+                Set<BluetoothDevice> bt = myBluetoothAdapter.getBondedDevices();
                 ArrayList list = new ArrayList();
 
-                if(bt.size() >0)
-                {
-                    Toast.makeText(getApplicationContext(),"Devices Detected",Toast.LENGTH_SHORT).show();
-                    for(BluetoothDevice device :bt )
-                    {
-                        list.add(device.getName()+"\n"+device.getAddress());
+                if (bt.size() > 0) {
+                    Toast.makeText(getApplicationContext(), "Devices Detected", Toast.LENGTH_SHORT).show();
+                    for (BluetoothDevice device : bt) {
+                        list.add(device.getName() + "\n" + device.getAddress());
                     }
-                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(),android.R.layout.simple_list_item_1,list);
+                    ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(getApplicationContext(), android.R.layout.simple_list_item_1, list);
                     listView.setAdapter(arrayAdapter);
                     listView.setOnItemClickListener(selectDevice);
                 }
@@ -76,10 +76,9 @@ public class MainActivity extends AppCompatActivity {
         buttonOFF.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(myBluetoothAdapter.isEnabled())
-                {
+                if (myBluetoothAdapter.isEnabled()) {
                     myBluetoothAdapter.disable();
-                    Toast.makeText(getApplicationContext(),"Bluetooth is Closed",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Bluetooth is Closed", Toast.LENGTH_SHORT).show();
                 }
             }
         });
@@ -87,15 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        if(requestCode == requestCodeForeEnable)
-        {
-            if(resultCode == RESULT_OK)
-            {
-                Toast.makeText(getApplicationContext(),"Bluetooth is Enable",Toast.LENGTH_SHORT).show();
-            }
-            else if (resultCode == RESULT_CANCELED)
-            {
-                Toast.makeText(getApplicationContext(),"Bluetooth Enabling is Cancelled",Toast.LENGTH_LONG).show();
+        if (requestCode == requestCodeForeEnable) {
+            if (resultCode == RESULT_OK) {
+                Toast.makeText(getApplicationContext(), "Bluetooth is Enable", Toast.LENGTH_SHORT).show();
+            } else if (resultCode == RESULT_CANCELED) {
+                Toast.makeText(getApplicationContext(), "Bluetooth Enabling is Cancelled", Toast.LENGTH_LONG).show();
             }
 
         }
@@ -106,15 +101,11 @@ public class MainActivity extends AppCompatActivity {
         buttonON.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(myBluetoothAdapter == null)
-                {
-                    Toast.makeText(getApplicationContext(),"Bluetooth does not support on this Device",Toast.LENGTH_LONG).show();
-                }
-                else
-                {
-                    if(!myBluetoothAdapter.isEnabled())
-                    {
-                        startActivityForResult(btenablingIntent,requestCodeForeEnable);
+                if (myBluetoothAdapter == null) {
+                    Toast.makeText(getApplicationContext(), "Bluetooth does not support on this Device", Toast.LENGTH_LONG).show();
+                } else {
+                    if (!myBluetoothAdapter.isEnabled()) {
+                        startActivityForResult(btenablingIntent, requestCodeForeEnable);
                     }
 
                 }
@@ -122,14 +113,16 @@ public class MainActivity extends AppCompatActivity {
         });
 
     }
+
     public AdapterView.OnItemClickListener selectDevice = new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
             String info = ((TextView) view).getText().toString();
-            String adress = info.substring(info.length()-17);
+            String adress = info.substring(info.length() - 17);
+            //((TextView) view).setTextColor(Color.WHITE); //
 
-            Intent comIntent = new Intent(MainActivity.this,Comunication.class);
-            comIntent.putExtra(Extra_ADRESS,adress);
+            Intent comIntent = new Intent(MainActivity.this, Comunication.class);
+            comIntent.putExtra(Extra_ADRESS, adress);
             startActivity(comIntent);
         }
     };

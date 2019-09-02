@@ -25,24 +25,29 @@ import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
+import java.util.Locale;
 import java.util.UUID;
 
 public class Comunication extends AppCompatActivity {
 
     LineChart mpLineChart; // declaring line chart
     ArrayList<Entry> dataVals = new ArrayList<Entry>();
-    int valueCounter=0;
+    int valueCounter = 0;
     float receivedFloatData;
     String globalData;
 
-    String address=null;
-    private ProgressDialog  progress;
+    String address = null;
+    private ProgressDialog progress;
     BluetoothAdapter myBluetooth = null;
-    BluetoothSocket btSocket =null;
+    BluetoothSocket btSocket = null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
-    Button ledOn,LedOf,getdataButton,temperatureButton,graphButton;
+    Button ledOn, LedOf, getdataButton, temperatureButton, graphButton, humunityButton;
     TextView textView;
     InputStream mmInputStream;
     Thread workerThread;
@@ -53,23 +58,29 @@ public class Comunication extends AppCompatActivity {
 
 
     private boolean isBtConnected = false;
-    static final UUID myUUID =UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+    static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    TextView dateTextview;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_comunication);
-        Intent newintent=getIntent();
+        Intent newintent = getIntent();
         address = newintent.getStringExtra(MainActivity.Extra_ADRESS);
         textView = findViewById(R.id.receivedDataTextID);
         temperatureButton = findViewById(R.id.temperatureID);
         ledOn = findViewById(R.id.openLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
         graphButton = findViewById(R.id.graphButtonID);
-
+        humunityButton = findViewById(R.id.humunityID);
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
-
+        dateTextview = findViewById(R.id.dateTextID);
+        // <dating>
+        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
+        dateTextview.setText(date);
+        // </ dating>
 
 
         graphButton.setOnClickListener(new View.OnClickListener() {
@@ -84,7 +95,7 @@ public class Comunication extends AppCompatActivity {
                 mpLineChart.setBorderColor(Color.BLUE);
                 mpLineChart.setBorderWidth(2);                      // </ editing line chart>
 
-                LineDataSet lineDataSet1 = new LineDataSet(dataVals,"Temperature");
+                LineDataSet lineDataSet1 = new LineDataSet(dataVals, "Temperature");
                 // editing lines
                 lineDataSet1.setLineWidth(2);
                 lineDataSet1.setColor(Color.BLACK);
@@ -94,14 +105,14 @@ public class Comunication extends AppCompatActivity {
                 lineDataSet1.setCircleHoleColor(Color.BLACK);
                 lineDataSet1.setCircleRadius(5);
                 lineDataSet1.setCircleHoleRadius(3);
-                lineDataSet1.setValueTextColor(Color.WHITE);
+                lineDataSet1.setValueTextColor(Color.GRAY);
                 lineDataSet1.setValueTextSize(10);
                 // </ editing lines >
                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
                 dataSets.add(lineDataSet1);
                 LineData data = new LineData(dataSets);
                 mpLineChart.setData(data);
-                 mpLineChart.invalidate();
+                mpLineChart.invalidate();
 
             }
         });
@@ -110,10 +121,9 @@ public class Comunication extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 getdataButton.setBackgroundColor(getResources().getColor(android.R.color.holo_green_dark));
-                if(btSocket != null)
-                {
+                if (btSocket != null) {
                     try {
-                        mmInputStream=btSocket.getInputStream();
+                        mmInputStream = btSocket.getInputStream();
                         beginListenForData();
 
                     } catch (IOException e) {
@@ -122,17 +132,39 @@ public class Comunication extends AppCompatActivity {
                 }
             }
         });
-        temperatureButton.setOnClickListener(new View.OnClickListener() {
+        humunityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-               // ledOn.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                dataVals.clear(); // clearing ArrayList of other sensor values
+                valueCounter = 0; // declaring 0 for new begin
+
                 if(btSocket != null)
                 {
                     try {
                         if(isBtConnected)
-                            btSocket.getOutputStream().write("1".toString().getBytes());
+                            btSocket.getOutputStream().write("3".toString().getBytes());
                         else
                             Toast.makeText(getApplicationContext(),"Connection is Broken",Toast.LENGTH_LONG).show();
+
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+        });
+        temperatureButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // ledOn.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+                if (btSocket != null) {
+                    try {
+                        if (isBtConnected)
+                            btSocket.getOutputStream().write("1".toString().getBytes());
+                        else
+                            Toast.makeText(getApplicationContext(), "Connection is Broken", Toast.LENGTH_LONG).show();
 
 
                     } catch (IOException e) {
@@ -145,10 +177,9 @@ public class Comunication extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                //TimeUnit.SECONDS.sleep(1);
+
                 mpLineChart.setVisibility(View.INVISIBLE);
-                if(btSocket != null)
-                {
+                if (btSocket != null) {
                     try {
                         btSocket.getOutputStream().write("2".toString().getBytes());
                         textView.setText("LED IS ON");
@@ -162,14 +193,13 @@ public class Comunication extends AppCompatActivity {
         new BTbaglan().execute();
 
     }
-    private void dataValues1() // 1
-    {
+
+    private void dataValues1() {
         receivedFloatData = Float.parseFloat(globalData);
-        dataVals.add(new Entry(valueCounter,  receivedFloatData));
+        dataVals.add(new Entry(valueCounter, receivedFloatData));
         valueCounter++;
 
 
-        //return dataVals;
     }
 
 
@@ -181,49 +211,36 @@ public class Comunication extends AppCompatActivity {
         stopWorker = false;
         readBufferPosition = 0;
         readBuffer = new byte[1024];
-        workerThread = new Thread(new Runnable()
-        {
-            public void run()
-            {
-                while(!Thread.currentThread().isInterrupted() && !stopWorker)
-                {
-                    try
-                    {
+        workerThread = new Thread(new Runnable() {
+            public void run() {
+                while (!Thread.currentThread().isInterrupted() && !stopWorker) {
+                    try {
                         int bytesAvailable = mmInputStream.available();
-                        if(bytesAvailable > 0)
-                        {
+                        if (bytesAvailable > 0) {
                             byte[] packetBytes = new byte[bytesAvailable];
                             mmInputStream.read(packetBytes);
-                            for(int i=0;i<bytesAvailable;i++)
-                            {
+                            for (int i = 0; i < bytesAvailable; i++) {
                                 byte b = packetBytes[i];
-                                if(b == delimiter)
-                                {
+                                if (b == delimiter) {
                                     byte[] encodedBytes = new byte[readBufferPosition];
                                     System.arraycopy(readBuffer, 0, encodedBytes, 0, encodedBytes.length);
                                     final String data = new String(encodedBytes, "US-ASCII");
                                     readBufferPosition = 0;
 
-                                    handler.post(new Runnable()
-                                    {
-                                        public void run()
-                                        {
-                                            textView.setText("Current Sensor Data:"+data);
+                                    handler.post(new Runnable() {
+                                        public void run() {
+                                            textView.setText("Current Sensor Data:" + data);
                                             globalData = data;
-                                            dataValues1();
+                                            dataValues1(); //for adding datas to Arraylist;
 
                                         }
                                     });
-                                }
-                                else
-                                {
+                                } else {
                                     readBuffer[readBufferPosition++] = b;
                                 }
                             }
                         }
-                    }
-                    catch (IOException ex)
-                    {
+                    } catch (IOException ex) {
                         stopWorker = true;
                     }
                 }
@@ -247,6 +264,7 @@ public class Comunication extends AppCompatActivity {
         }
         finish();
     }
+
     @Override
     public void onBackPressed() {
         super.onBackPressed();
@@ -259,7 +277,7 @@ public class Comunication extends AppCompatActivity {
 
         @Override
         protected void onPreExecute() {
-            progress = ProgressDialog.show(Comunication.this, "Baglanıyor...", "Lütfen Bekleyin");
+            progress = ProgressDialog.show(Comunication.this, "Connecting...", "Please Wait");
         }
 
         // https://gelecegiyazanlar.turkcell.com.tr/konu/android/egitim/android-301/asynctask
@@ -274,7 +292,6 @@ public class Comunication extends AppCompatActivity {
                     btSocket.connect();
 
 
-
                 }
             } catch (IOException e) {
                 ConnectSuccess = false;
@@ -287,11 +304,11 @@ public class Comunication extends AppCompatActivity {
             super.onPostExecute(result);
             if (!ConnectSuccess) {
                 // msg("Baglantı Hatası, Lütfen Tekrar Deneyin");
-                Toast.makeText(getApplicationContext(), "Bağlantı Hatası Tekrar Deneyin", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Connection Error, Try Again.", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
                 //   msg("Baglantı Basarılı");
-                Toast.makeText(getApplicationContext(), "Bağlantı Başarılı", Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Connection Successful", Toast.LENGTH_SHORT).show();
 
                 isBtConnected = true;
             }

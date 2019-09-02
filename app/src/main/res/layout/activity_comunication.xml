@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".Comunication"
-    android:background="#151719">
+    >
 
     <LinearLayout
         android:id="@+id/linearLayout"
@@ -73,14 +73,15 @@
             android:orientation="horizontal">
 
             <Button
-                android:id="@+id/pressButtonID"
+                android:id="@+id/humunityID"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Humunity" />
+                android:text="Humunity"
+                />
 
             <Button
-                android:id="@+id/Humı"
+                android:id="@+id/humunityGraphID"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
@@ -94,11 +95,11 @@
             android:orientation="horizontal">
 
             <TextView
-                android:id="@+id/textView"
+                android:id="@+id/dateTextID"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:textColor="#FFF"
+                android:textColor="#151719"
                 android:text="2019/08/02"
                 android:textSize="18sp"
                 android:gravity="center"
@@ -110,8 +111,9 @@
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:gravity="center"
+                android:textColor="#151719"
                 android:text="Information"
-                android:textColor="#FFF"
+
                 android:textSize="18sp" />
         </LinearLayout>
 
