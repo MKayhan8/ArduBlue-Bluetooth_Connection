@@ -36,8 +36,13 @@ import java.util.UUID;
 
 public class Comunication extends AppCompatActivity {
 
-    LineChart mpLineChart; // declaring line chart
+    LineChart mpLineChart, mp_2_LineChart; // declaring line chart
     ArrayList<Entry> dataVals = new ArrayList<Entry>();
+
+    ArrayList<Entry> dataVals2 =new ArrayList<Entry>();
+    ArrayList<Entry> dataVals3 =new ArrayList<Entry>();
+    int cdata=0;
+    int cdata2=0;
     int valueCounter = 0;
     float receivedFloatData;
     String globalData;
@@ -79,6 +84,7 @@ public class Comunication extends AppCompatActivity {
         HumunityGraphButton = findViewById(R.id.humunityGraphID);
 
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
+        //mp_2_LineChart = (LineChart) findViewById(R.id.line_chart);
 
         dateTextview = findViewById(R.id.dateTextID);
         // <dating>
@@ -90,6 +96,25 @@ public class Comunication extends AppCompatActivity {
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+               // dataVals2.addAll(dataVals);
+                cdata=dataVals2.size();
+                for(int i=0 ; i< dataVals.size() ; i++)
+                {
+
+                    dataVals2.add(new Entry(cdata, dataVals.get(i).getY()));
+                    cdata++;
+                }
+
+                dataVals.clear(); // clearing ArrayList of other sensor values
+                valueCounter = 0;// declaring 0 for new begin
+
+                for(int i=0 ; i< dataVals2.size() ; ++i){
+                    System.out.println(i+" ,"+dataVals2.get(i));
+                }
+
+
+
+
                 mpLineChart.setVisibility(View.VISIBLE);
                 textView.setText("Graph of datas until now");
                 //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
@@ -100,7 +125,7 @@ public class Comunication extends AppCompatActivity {
                 mpLineChart.setBorderWidth(2);
                 // </ editing line chart>
 
-                LineDataSet lineDataSet1 = new LineDataSet(dataVals, "Temperature");
+                LineDataSet lineDataSet1 = new LineDataSet(dataVals2, "Temperature");
                 // editing lines
                 lineDataSet1.setLineWidth(2);
                 lineDataSet1.setColor(Color.BLACK);
@@ -125,6 +150,20 @@ public class Comunication extends AppCompatActivity {
         HumunityGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                cdata=dataVals3.size();
+                for(int i=0 ; i< dataVals.size() ; i++)
+                {
+
+                    dataVals3.add(new Entry(cdata, dataVals.get(i).getY()));
+                    cdata++;
+                }
+
+                dataVals.clear(); // clearing ArrayList of other sensor values
+                valueCounter = 0;// declaring 0 for new begin
+
+                for(int i=0 ; i< dataVals3.size() ; ++i){
+                    System.out.println(i+" ,"+dataVals3.get(i));
+                }
                 mpLineChart.setVisibility(View.VISIBLE);
                 textView.setText("Graph of datas until now");
                 //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
@@ -135,7 +174,7 @@ public class Comunication extends AppCompatActivity {
                 mpLineChart.setBorderWidth(2);
                 // </ editing line chart>
 
-                LineDataSet lineDataSet1 = new LineDataSet(dataVals, "Humunity");
+                LineDataSet lineDataSet1 = new LineDataSet(dataVals3, "Humunity");
                 // editing lines
                 lineDataSet1.setLineWidth(2);
                 lineDataSet1.setColor(Color.BLACK);
@@ -176,6 +215,7 @@ public class Comunication extends AppCompatActivity {
         humunityButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
                 dataVals.clear(); // clearing ArrayList of other sensor values
                 valueCounter = 0; // declaring 0 for new begin
 
@@ -273,7 +313,7 @@ public class Comunication extends AppCompatActivity {
                                         public void run() {
                                             textView.setText("Current Data:" + data);
                                             globalData = data;
-                                            dataValues1(); //for adding datas to Arraylist;
+                                            dataValues1(); // for adding datas to Arraylist;
 
                                         }
                                     });
