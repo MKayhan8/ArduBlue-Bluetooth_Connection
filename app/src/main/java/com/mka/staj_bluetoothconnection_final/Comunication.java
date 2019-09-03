@@ -48,7 +48,7 @@ public class Comunication extends AppCompatActivity {
     BluetoothSocket btSocket = null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
-    Button ledOn, LedOf, getdataButton, temperatureButton, graphButton, humunityButton;
+    Button ledOn, LedOf, getdataButton, temperatureButton, TemperatureGraphButton, humunityButton, HumunityGraphButton;
     TextView textView;
     InputStream mmInputStream;
     Thread workerThread;
@@ -74,9 +74,12 @@ public class Comunication extends AppCompatActivity {
         temperatureButton = findViewById(R.id.temperatureID);
         ledOn = findViewById(R.id.openLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
-        graphButton = findViewById(R.id.graphButtonID);
+        TemperatureGraphButton = findViewById(R.id.graphButtonID);
         humunityButton = findViewById(R.id.humunityID);
+        HumunityGraphButton = findViewById(R.id.humunityGraphID);
+
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
+
         dateTextview = findViewById(R.id.dateTextID);
         // <dating>
         String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
@@ -84,7 +87,7 @@ public class Comunication extends AppCompatActivity {
         // </ dating>
 
 
-        graphButton.setOnClickListener(new View.OnClickListener() {
+        TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 mpLineChart.setVisibility(View.VISIBLE);
@@ -109,6 +112,42 @@ public class Comunication extends AppCompatActivity {
                 lineDataSet1.setCircleHoleRadius(3);
                 lineDataSet1.setValueTextColor(Color.GRAY);
                 lineDataSet1.setValueTextSize(10);
+                lineDataSet1.setDrawValues(false);
+                // </ editing lines >
+                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+                dataSets.add(lineDataSet1);
+                LineData data = new LineData(dataSets);
+                mpLineChart.setData(data);
+                mpLineChart.invalidate();
+
+            }
+        });
+        HumunityGraphButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                mpLineChart.setVisibility(View.VISIBLE);
+                textView.setText("Graph of datas until now");
+                //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
+                // mpLineChart.setNoDataText("No Data");
+                //mpLineChart.setDrawGridBackground(true);
+                mpLineChart.setDrawBorders(true);
+                mpLineChart.setBorderColor(Color.BLUE);
+                mpLineChart.setBorderWidth(2);
+                // </ editing line chart>
+
+                LineDataSet lineDataSet1 = new LineDataSet(dataVals, "Humunity");
+                // editing lines
+                lineDataSet1.setLineWidth(2);
+                lineDataSet1.setColor(Color.BLACK);
+                lineDataSet1.setDrawCircles(true);
+                lineDataSet1.setDrawCircleHole(true);
+                lineDataSet1.setCircleColor(Color.BLUE);
+                lineDataSet1.setCircleHoleColor(Color.BLACK);
+                lineDataSet1.setCircleRadius(5);
+                lineDataSet1.setCircleHoleRadius(3);
+                lineDataSet1.setValueTextColor(Color.GRAY);
+                lineDataSet1.setValueTextSize(10);
+                lineDataSet1.setDrawValues(false);
                 // </ editing lines >
                 ArrayList<ILineDataSet> dataSets = new ArrayList<>();
                 dataSets.add(lineDataSet1);
@@ -159,7 +198,9 @@ public class Comunication extends AppCompatActivity {
         temperatureButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // ledOn.setBackgroundColor(getResources().getColor(android.R.color.holo_green_light));
+
+                dataVals.clear(); // clearing ArrayList of other sensor values
+                valueCounter = 0; // declaring 0 for new begin
                 if (btSocket != null) {
                     try {
                         if (isBtConnected)
@@ -230,7 +271,7 @@ public class Comunication extends AppCompatActivity {
 
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            textView.setText("Current Sensor Data:" + data);
+                                            textView.setText("Current Data:" + data);
                                             globalData = data;
                                             dataValues1(); //for adding datas to Arraylist;
 
