@@ -1,5 +1,6 @@
 package com.mka.staj_bluetoothconnection_final;
 
+import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.app.ProgressDialog;
@@ -93,7 +94,8 @@ public class Comunication extends AppCompatActivity {
                 //mpLineChart.setDrawGridBackground(true);
                 mpLineChart.setDrawBorders(true);
                 mpLineChart.setBorderColor(Color.BLUE);
-                mpLineChart.setBorderWidth(2);                      // </ editing line chart>
+                mpLineChart.setBorderWidth(2);
+                // </ editing line chart>
 
                 LineDataSet lineDataSet1 = new LineDataSet(dataVals, "Temperature");
                 // editing lines
@@ -138,13 +140,12 @@ public class Comunication extends AppCompatActivity {
                 dataVals.clear(); // clearing ArrayList of other sensor values
                 valueCounter = 0; // declaring 0 for new begin
 
-                if(btSocket != null)
-                {
+                if (btSocket != null) {
                     try {
-                        if(isBtConnected)
+                        if (isBtConnected)
                             btSocket.getOutputStream().write("3".toString().getBytes());
                         else
-                            Toast.makeText(getApplicationContext(),"Connection is Broken",Toast.LENGTH_LONG).show();
+                            Toast.makeText(getApplicationContext(), "Connection is Broken", Toast.LENGTH_LONG).show();
 
 
                     } catch (IOException e) {
