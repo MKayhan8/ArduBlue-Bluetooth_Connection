@@ -150,12 +150,12 @@ public class Comunication extends AppCompatActivity {
         HumunityGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cdata=dataVals3.size();
+                cdata2=dataVals3.size();
                 for(int i=0 ; i< dataVals.size() ; i++)
                 {
 
-                    dataVals3.add(new Entry(cdata, dataVals.get(i).getY()));
-                    cdata++;
+                    dataVals3.add(new Entry(cdata2, dataVals.get(i).getY()));
+                    cdata2++;
                 }
 
                 dataVals.clear(); // clearing ArrayList of other sensor values
