@@ -82,9 +82,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text="Humunity"
-
                 android:background="@drawable/my_button_bg"
+
+                android:text="Humudity"
 
                 />
 
@@ -93,8 +93,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
-                android:text=" Humunity Graph"
-                android:background="@drawable/my_button_bg"/>
+                android:background="@drawable/my_button_bg"
+                android:text=" Humudity Graph" />
 
         </LinearLayout>
 

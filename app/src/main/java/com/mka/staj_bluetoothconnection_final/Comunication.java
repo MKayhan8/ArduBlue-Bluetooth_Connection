@@ -41,8 +41,8 @@ public class Comunication extends AppCompatActivity {
 
     ArrayList<Entry> dataVals2 = new ArrayList<Entry>();
     ArrayList<Entry> dataVals3 = new ArrayList<Entry>();
-    int cdata = 0;
-    int cdata2 = 0;
+    int temparatureDataCounter = 0;
+    int humunityDataCounter = 0;
     int valueCounter = 0;
     float receivedFloatData;
     String globalData;
@@ -96,21 +96,7 @@ public class Comunication extends AppCompatActivity {
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // dataVals2.addAll(dataVals);
-                cdata = dataVals2.size();
-                /*
-                for (int i = 0; i < dataVals.size(); i++) {
 
-                    dataVals2.add(new Entry(cdata, dataVals.get(i).getY()));
-                    cdata++;
-                }
-                */
-                dataVals.clear(); // clearing ArrayList of other sensor values
-                valueCounter = 0;// declaring 0 for new begin
-
-                for (int i = 0; i < dataVals2.size(); ++i) {
-                    System.out.println(i + " ," + dataVals2.get(i));
-                }
 
 
                 mpLineChart.setVisibility(View.VISIBLE);
@@ -148,20 +134,7 @@ public class Comunication extends AppCompatActivity {
         HumunityGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                cdata2 = dataVals3.size();
-                for (int i = 0; i < dataVals.size(); i++) {
 
-                    dataVals3.add(new Entry(cdata2, dataVals.get(i).getY()));
-                    cdata2++;
-                }
-
-                dataVals.clear(); // clearing ArrayList of other sensor values
-                valueCounter = 0;// declaring 0 for new begin
-                /*
-                for (int i = 0; i < dataVals3.size(); ++i) {
-                    System.out.println(i + " ," + dataVals3.get(i));
-                }
-                */
                 mpLineChart.setVisibility(View.VISIBLE);
                 textView.setText("Graph of datas until now");
                 //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
@@ -214,8 +187,7 @@ public class Comunication extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                dataVals.clear(); // clearing ArrayList of other sensor values
-                valueCounter = 0; // declaring 0 for new begin
+
 
                 if (btSocket != null) {
                     try {
@@ -237,8 +209,7 @@ public class Comunication extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
-                dataVals.clear(); // clearing ArrayList of other sensor values
-                valueCounter = 0; // declaring 0 for new begin
+
                 if (btSocket != null) {
                     try {
                         if (isBtConnected)
@@ -275,9 +246,38 @@ public class Comunication extends AppCompatActivity {
     }
 
     private void dataValues1() {
-        receivedFloatData = Float.parseFloat(globalData);
-        dataVals.add(new Entry(valueCounter, receivedFloatData));
-        valueCounter++;
+        char[] characters = globalData.toCharArray();
+
+        char firstChar = characters[0];
+        if( firstChar =='T')
+        {
+            // add temparatureArraylist
+            System.out.print(globalData+"__");
+
+            globalData = globalData.substring(1);
+            System.out.println(globalData);
+            receivedFloatData = Float.parseFloat(globalData);
+
+            dataVals2.add(new Entry(temparatureDataCounter, receivedFloatData));
+            temparatureDataCounter++;
+
+
+        }
+        if( firstChar =='H')
+        {
+            // add temparatureArraylist
+            System.out.print(globalData+"__");
+
+            globalData = globalData.substring(1);
+            System.out.println(globalData);
+            receivedFloatData = Float.parseFloat(globalData);
+
+            dataVals3.add(new Entry(humunityDataCounter, receivedFloatData));
+            humunityDataCounter++;
+
+
+        }
+
 
 
     }
