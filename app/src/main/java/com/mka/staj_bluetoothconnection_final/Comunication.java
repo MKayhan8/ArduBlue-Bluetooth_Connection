@@ -2,12 +2,17 @@ package com.mka.staj_bluetoothconnection_final;
 
 import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
+import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothServerSocket;
 import android.bluetooth.BluetoothSocket;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -29,6 +34,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -51,6 +57,11 @@ public class Comunication extends AppCompatActivity {
     float receivedFloatTemperatureData;
     float receivedFloatHumunityData;
     String globalData;
+    boolean selectedGraph = false;
+    String currentDateTimeString;
+
+    private final String CHANNEL_ID = "bambam";
+    private final int NOTIFICATION_ID = 001;
 
     String address = null;
     private ProgressDialog progress;
@@ -59,7 +70,7 @@ public class Comunication extends AppCompatActivity {
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
     Button ledOn, LedOf, getdataButton, temperatureButton, TemperatureGraphButton, humunityButton, HumunityGraphButton;
-    TextView textView;
+
     InputStream mmInputStream;
     Thread workerThread;
     byte[] readBuffer;
@@ -80,7 +91,7 @@ public class Comunication extends AppCompatActivity {
         setContentView(R.layout.activity_comunication);
         Intent newintent = getIntent();
         address = newintent.getStringExtra(MainActivity.Extra_ADRESS);
-        textView = findViewById(R.id.receivedDataTextID);
+
         temperatureButton = findViewById(R.id.temperatureID);
         ledOn = findViewById(R.id.openLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
@@ -92,82 +103,21 @@ public class Comunication extends AppCompatActivity {
         //mp_2_LineChart = (LineChart) findViewById(R.id.line_chart);
 
         dateTextview = findViewById(R.id.dateTextID);
-        // <dating>
-        String date = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
-        dateTextview.setText(date);
-        // </ dating>
 
 
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-
-                mpLineChart.setVisibility(View.VISIBLE);
-                textView.setText("Graph of datas until now");
-                //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
-                // mpLineChart.setNoDataText("No Data");
-                //mpLineChart.setDrawGridBackground(true);
-                mpLineChart.setDrawBorders(true);
-                mpLineChart.setBorderColor(Color.BLUE);
-                mpLineChart.setBorderWidth(2);
-                // </ editing line chart>
-
-                LineDataSet lineDataSet1 = new LineDataSet(dataVals2, "Temperature");
-                // editing lines
-                lineDataSet1.setLineWidth(2);
-                lineDataSet1.setColor(Color.BLACK);
-                lineDataSet1.setDrawCircles(true);
-                lineDataSet1.setDrawCircleHole(true);
-                lineDataSet1.setCircleColor(Color.BLUE);
-                lineDataSet1.setCircleHoleColor(Color.BLACK);
-                lineDataSet1.setCircleRadius(5);
-                lineDataSet1.setCircleHoleRadius(3);
-                lineDataSet1.setValueTextColor(Color.GRAY);
-                lineDataSet1.setValueTextSize(10);
-                lineDataSet1.setDrawValues(false);
-                // </ editing lines >
-                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                dataSets.add(lineDataSet1);
-                LineData data = new LineData(dataSets);
-                mpLineChart.setData(data);
-                mpLineChart.invalidate();
+                // DEGİŞİM BURDA BASLADI
+                selectedGraph = true;//
 
             }
         });
         HumunityGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
-                mpLineChart.setVisibility(View.VISIBLE);
-                textView.setText("Graph of datas until now");
-                //mpLineChart.setBackgroundColor(Color.BLACK);          //< editing line chart >
-                // mpLineChart.setNoDataText("No Data");
-                //mpLineChart.setDrawGridBackground(true);
-                mpLineChart.setDrawBorders(true);
-                mpLineChart.setBorderColor(Color.BLUE);
-                mpLineChart.setBorderWidth(2);
-                // </ editing line chart>
-
-                LineDataSet lineDataSet1 = new LineDataSet(dataVals3, "Humunity");
-                // editing lines
-                lineDataSet1.setLineWidth(2);
-                lineDataSet1.setColor(Color.BLACK);
-                lineDataSet1.setDrawCircles(true);
-                lineDataSet1.setDrawCircleHole(true);
-                lineDataSet1.setCircleColor(Color.BLUE);
-                lineDataSet1.setCircleHoleColor(Color.BLACK);
-                lineDataSet1.setCircleRadius(5);
-                lineDataSet1.setCircleHoleRadius(3);
-                lineDataSet1.setValueTextColor(Color.GRAY);
-                lineDataSet1.setValueTextSize(10);
-                lineDataSet1.setDrawValues(false);
-                // </ editing lines >
-                ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-                dataSets.add(lineDataSet1);
-                LineData data = new LineData(dataSets);
-                mpLineChart.setData(data);
-                mpLineChart.invalidate();
+                selectedGraph = false;//
 
             }
         });
@@ -236,7 +186,7 @@ public class Comunication extends AppCompatActivity {
                 if (btSocket != null) {
                     try {
                         btSocket.getOutputStream().write("2".toString().getBytes());
-                        textView.setText("LED IS ON");
+                        dateTextview.setText("LED IS ON");
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
@@ -248,24 +198,130 @@ public class Comunication extends AppCompatActivity {
 
     }
 
-    private void dataValues1() {
+    private void showGraph(boolean selectedGraph) {
+        // <dating>
+        currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+        dateTextview.setText("Last Update: " + currentDateTimeString);
+        // </ dating>
 
+        if (selectedGraph) {
+            mpLineChart.setVisibility(View.VISIBLE);
+
+            // < editing line chart>
+            mpLineChart.setDrawBorders(true);
+            mpLineChart.setBorderColor(Color.BLUE);
+            mpLineChart.setBorderWidth(2);
+            // </ editing line chart>
+
+            LineDataSet lineDataSet1 = new LineDataSet(dataVals2, "Temperature");
+            // <editing lines>
+            lineDataSet1.setLineWidth(2);
+            lineDataSet1.setColor(Color.BLACK);
+            lineDataSet1.setDrawCircles(true);
+            lineDataSet1.setDrawCircleHole(true);
+            lineDataSet1.setCircleColor(Color.BLACK);
+            lineDataSet1.setCircleHoleColor(Color.BLUE);
+            lineDataSet1.setCircleRadius(3);
+            lineDataSet1.setCircleHoleRadius(2);
+            lineDataSet1.setValueTextColor(Color.GRAY);
+            lineDataSet1.setValueTextSize(10);
+            lineDataSet1.setDrawValues(false);
+            // </ editing lines >
+            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+            dataSets.add(lineDataSet1);
+            LineData data = new LineData(dataSets);
+            mpLineChart.setData(data);
+            mpLineChart.invalidate();
+        } else {
+            mpLineChart.setVisibility(View.VISIBLE);
+
+            // < editing line chart >
+            mpLineChart.setDrawBorders(true);
+            mpLineChart.setBorderColor(Color.BLUE);
+            mpLineChart.setBorderWidth(2);
+            // </ editing line chart>
+
+            LineDataSet lineDataSet1 = new LineDataSet(dataVals3, "Huminity");
+            // <editing lines>
+            lineDataSet1.setLineWidth(2);
+            lineDataSet1.setColor(Color.BLACK);
+            lineDataSet1.setDrawCircles(true);
+            lineDataSet1.setDrawCircleHole(true);
+            lineDataSet1.setCircleColor(Color.BLACK);
+            lineDataSet1.setCircleHoleColor(Color.BLUE);
+            lineDataSet1.setCircleRadius(3);
+            lineDataSet1.setCircleHoleRadius(2);
+            lineDataSet1.setValueTextColor(Color.GRAY);
+            lineDataSet1.setValueTextSize(10);
+            lineDataSet1.setDrawValues(false);
+            // </ editing lines >
+            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+            dataSets.add(lineDataSet1);
+            LineData data = new LineData(dataSets);
+            mpLineChart.setData(data);
+            mpLineChart.invalidate();
+        }
+
+    }
+
+    private void showNotification(float receivedFloatAlertData, String key) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
+        builder.setSmallIcon(R.drawable.ic_launcher_background);
+        builder.setContentTitle("Caution!");
+        if (key == "K") {
+            builder.setContentText("High temperature value: " + receivedFloatAlertData + " C");
+        }
+        if (key == "H") {
+            builder.setContentText("High humunity value: " + "% " + receivedFloatAlertData);
+        }
+        builder.setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManagerCompat = NotificationManagerCompat.from(getApplicationContext());
+        notificationManagerCompat.notify(NOTIFICATION_ID, builder.build());
+    }
+
+    private void dataValues1() {
 
 
         System.out.println(globalData);
         JSONObject mainObject = null;
         try {
             mainObject = new JSONObject(globalData);
+            {
+                String temperatureValue = mainObject.getString("temperature");
+                receivedFloatTemperatureData = Float.parseFloat(temperatureValue);
+                if (receivedFloatTemperatureData > 25.00) {
+                    showNotification(receivedFloatTemperatureData, "K");
+                }
+                if (temparatureDataCounter == 0) {
+                    dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
+                    temparatureDataCounter++;
+                } else if (receivedFloatTemperatureData == dataVals2.get(temparatureDataCounter - 1).getY()) {
+                } else {
+                    dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
+                    temparatureDataCounter++;
+                }
 
-            String temperatureValue = mainObject.getString("temperature");
-            receivedFloatTemperatureData = Float.parseFloat(temperatureValue);
-            dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
-            temparatureDataCounter++;
 
-            String humunityValue = mainObject.getString("humunity");
-            receivedFloatHumunityData = Float.parseFloat(humunityValue);
-            dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
-            humunityDataCounter++;
+            }
+            {
+                String humunityValue = mainObject.getString("humunity");
+                receivedFloatHumunityData = Float.parseFloat(humunityValue);
+                if (receivedFloatHumunityData > 45.00) {
+                    showNotification(receivedFloatHumunityData, "H");
+                }
+                if (humunityDataCounter == 0) {
+                    dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
+                    humunityDataCounter++;
+                }
+                if (receivedFloatHumunityData == dataVals3.get(humunityDataCounter - 1).getY()) {
+                } else {
+                    dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
+                    humunityDataCounter++;
+                }
+
+            }
+            showGraph(selectedGraph);
+
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -301,7 +357,7 @@ public class Comunication extends AppCompatActivity {
 
                                     handler.post(new Runnable() {
                                         public void run() {
-                                            textView.setText("Current Data:" + data);
+
                                             globalData = data;
                                             dataValues1(); // for adding datas to Arraylist;
 
@@ -363,8 +419,8 @@ public class Comunication extends AppCompatActivity {
                     BluetoothAdapter.getDefaultAdapter().cancelDiscovery();
                     btSocket.connect();
 
-
                 }
+
             } catch (IOException e) {
                 ConnectSuccess = false;
             }
@@ -375,11 +431,11 @@ public class Comunication extends AppCompatActivity {
         protected void onPostExecute(Void result) {
             super.onPostExecute(result);
             if (!ConnectSuccess) {
-                // msg("Baglantı Hatası, Lütfen Tekrar Deneyin");
+
                 Toast.makeText(getApplicationContext(), "Connection Error, Try Again.", Toast.LENGTH_SHORT).show();
                 finish();
             } else {
-                //   msg("Baglantı Basarılı");
+
                 Toast.makeText(getApplicationContext(), "Connection Successful", Toast.LENGTH_SHORT).show();
 
                 isBtConnected = true;
