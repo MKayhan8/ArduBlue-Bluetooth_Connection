@@ -24,6 +24,9 @@ import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.interfaces.datasets.ILineDataSet;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.SimpleDateFormat;
@@ -45,6 +48,8 @@ public class Comunication extends AppCompatActivity {
     int humunityDataCounter = 0;
     int valueCounter = 0;
     float receivedFloatData;
+    float receivedFloatTemperatureData;
+    float receivedFloatHumunityData;
     String globalData;
 
     String address = null;
@@ -96,7 +101,6 @@ public class Comunication extends AppCompatActivity {
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-
 
 
                 mpLineChart.setVisibility(View.VISIBLE);
@@ -188,7 +192,6 @@ public class Comunication extends AppCompatActivity {
             public void onClick(View view) {
 
 
-
                 if (btSocket != null) {
                     try {
                         if (isBtConnected)
@@ -246,38 +249,27 @@ public class Comunication extends AppCompatActivity {
     }
 
     private void dataValues1() {
-        char[] characters = globalData.toCharArray();
 
-        char firstChar = characters[0];
-        if( firstChar =='T')
-        {
-            // add temparatureArraylist
-            System.out.print(globalData+"__");
 
-            globalData = globalData.substring(1);
-            System.out.println(globalData);
-            receivedFloatData = Float.parseFloat(globalData);
 
-            dataVals2.add(new Entry(temparatureDataCounter, receivedFloatData));
+        System.out.println(globalData);
+        JSONObject mainObject = null;
+        try {
+            mainObject = new JSONObject(globalData);
+
+            String temperatureValue = mainObject.getString("temperature");
+            receivedFloatTemperatureData = Float.parseFloat(temperatureValue);
+            dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
             temparatureDataCounter++;
 
-
-        }
-        if( firstChar =='H')
-        {
-            // add temparatureArraylist
-            System.out.print(globalData+"__");
-
-            globalData = globalData.substring(1);
-            System.out.println(globalData);
-            receivedFloatData = Float.parseFloat(globalData);
-
-            dataVals3.add(new Entry(humunityDataCounter, receivedFloatData));
+            String humunityValue = mainObject.getString("humunity");
+            receivedFloatHumunityData = Float.parseFloat(humunityValue);
+            dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
             humunityDataCounter++;
 
-
+        } catch (JSONException e) {
+            e.printStackTrace();
         }
-
 
 
     }
