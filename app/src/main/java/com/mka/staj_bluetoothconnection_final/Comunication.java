@@ -1,12 +1,11 @@
 package com.mka.staj_bluetoothconnection_final;
 
-import androidx.annotation.DrawableRes;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-import android.app.Notification;
-import android.app.NotificationManager;
+import android.app.AlertDialog;
+import android.app.DatePickerDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -19,8 +18,8 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.DatePicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,13 +35,9 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 import java.util.UUID;
 
 public class Comunication extends AppCompatActivity {
@@ -73,7 +68,7 @@ public class Comunication extends AppCompatActivity {
     BluetoothSocket btSocket = null;
     BluetoothDevice remoteDevice;
     BluetoothServerSocket mService;
-    Button ledOn, LedOf, getdataButton, temperatureButton, TemperatureGraphButton, humunityButton, HumunityGraphButton;
+    Button ledOn, LedOf, getdataButton, temperatureButton, TemperatureGraphButton, historyButton, HumunityGraphButton;
 
     InputStream mmInputStream;
     Thread workerThread;
@@ -87,7 +82,7 @@ public class Comunication extends AppCompatActivity {
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     TextView dateTextview;
-
+    Context context= this;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -100,7 +95,7 @@ public class Comunication extends AppCompatActivity {
         ledOn = findViewById(R.id.openLedID);
         getdataButton = findViewById(R.id.getDataButtonID);
         TemperatureGraphButton = findViewById(R.id.graphButtonID);
-        humunityButton = findViewById(R.id.humunityID);
+        historyButton = findViewById(R.id.datePickerDialogID);
         HumunityGraphButton = findViewById(R.id.humunityGraphID);
 
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
@@ -110,7 +105,7 @@ public class Comunication extends AppCompatActivity {
         // <data base>
         dataSource = new DataSource(this);
         dataSource.open();
-        dataSource.clear();
+       // dataSource.clear();
 
         // </data base>
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
@@ -145,24 +140,35 @@ public class Comunication extends AppCompatActivity {
                 }
             }
         });
-        humunityButton.setOnClickListener(new View.OnClickListener() {
+        historyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
+                Calendar nowTıme = Calendar.getInstance();
+                int year =nowTıme.get(Calendar.YEAR);
+                int month = nowTıme.get(Calendar.MONTH);
+                int day = nowTıme.get(Calendar.DAY_OF_MONTH);
 
-                if (btSocket != null) {
-                    try {
-                        if (isBtConnected)
-                            btSocket.getOutputStream().write("3".toString().getBytes());
-                        else
-                            Toast.makeText(getApplicationContext(), "Connection is Broken", Toast.LENGTH_LONG).show();
-
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
+                DatePickerDialog datePickerDialog = new DatePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        System.out.println(i+" "+i1+" "+i2);
+                        Toast.makeText(getApplicationContext(),i+" "+i1+" "+i2,Toast.LENGTH_SHORT).show();
                     }
-                }
+                }, year, month, day);
 
+                datePickerDialog.setTitle("Gösterilecek Grafik Sonu");
+                datePickerDialog.show();
+                DatePickerDialog datePickerDialog2 = new DatePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
+                    @Override
+                    public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
+                        System.out.println(i+" "+i1+" "+i2);
+                        Toast.makeText(getApplicationContext(),i+" "+i1+" "+i2,Toast.LENGTH_SHORT).show();
+                    }
+                }, year, month, day);
+
+                datePickerDialog2.setTitle("Gösterilecek Grafik Başlangıcı");
+                datePickerDialog2.show();
             }
 
         });
