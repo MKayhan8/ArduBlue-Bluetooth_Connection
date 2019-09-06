@@ -40,6 +40,7 @@ import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 import java.util.UUID;
@@ -110,6 +111,7 @@ public class Comunication extends AppCompatActivity {
         dataSource = new DataSource(this);
         dataSource.open();
         dataSource.clear();
+
         // </data base>
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -302,14 +304,22 @@ public class Comunication extends AppCompatActivity {
                 if (temparatureDataCounter == 0) {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
-                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData); //database
+                    currentDateTimeString=DateFormat.getDateTimeInstance().format(new Date());
+                    /*
+                    currentDateTimeString = String.valueOf(System.currentTimeMillis());
+                    Calendar cal = Calendar.getInstance();
+                    cal.setTimeInMillis(Long.parseLong(currentDateTimeString));
+                    cal.get(Calendar.HOUR_OF_DAY);
+                    */
+                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData,currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
 
                 } else if (receivedFloatTemperatureData == dataVals2.get(temparatureDataCounter - 1).getY()) {
                 } else {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
-                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData); //database
+                    currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData,currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
 
@@ -324,14 +334,16 @@ public class Comunication extends AppCompatActivity {
                 if (humunityDataCounter == 0) {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
-                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData); //database
+                    currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData,currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
                 if (receivedFloatHumunityData == dataVals3.get(humunityDataCounter - 1).getY()) {
                 } else {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
-                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData); //database
+                    currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
+                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData,currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
 
@@ -339,7 +351,7 @@ public class Comunication extends AppCompatActivity {
             ArrayList<Sensor> receivedSensorsArray = dataSource.listele(); // database
             for(int i=0 ; i< receivedSensorsArray.size() ; ++i)     // database
             {
-                System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue());
+                System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue()+" "+receivedSensorsArray.get(i).getCurrentDateTimeString());
             }
             showGraph(selectedGraph);
 

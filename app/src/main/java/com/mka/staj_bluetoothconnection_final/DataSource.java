@@ -28,18 +28,22 @@ public class DataSource {
     {
         db.execSQL("delete  from Sensor" );
     }
+
+
+
     public void createSensor(Sensor sensor)
     {
        //Sensor s =new  Sensor("Temperature", 35.70f);
         ContentValues val = new ContentValues();
         val.put("sensorName",sensor.getSensorName());
         val.put("sensorValue",sensor.getSensorValue());
+        val.put("currentDateTimeString",sensor.getCurrentDateTimeString());
         db.insert("Sensor",null,val);
     }
 
     public ArrayList<Sensor> listele()
     {
-        String columns[] = {"sensorName","sensorValue"};
+        String columns[] = {"sensorName","sensorValue","currentDateTimeString"};
         Cursor c = db.query("Sensor",columns,null,null,null,null,null);
         c.moveToFirst();
         ArrayList<Sensor> arrayList = new ArrayList<Sensor>();
@@ -47,7 +51,8 @@ public class DataSource {
         {
             String sensorName = c.getString(0);
             float sensorValue = c.getFloat(1);
-            Sensor s = new Sensor(sensorName,sensorValue);
+            String sensorDate = c.getString(2);
+            Sensor s = new Sensor(sensorName,sensorValue,sensorDate);
             arrayList.add(s);
             c.moveToNext();
         }
