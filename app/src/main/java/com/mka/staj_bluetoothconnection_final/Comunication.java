@@ -19,6 +19,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -59,6 +60,8 @@ public class Comunication extends AppCompatActivity {
     String globalData;
     boolean selectedGraph = false;
     String currentDateTimeString;
+
+    DataSource dataSource;
 
     private final String CHANNEL_ID = "bambam";
     private final int NOTIFICATION_ID = 001;
@@ -103,8 +106,11 @@ public class Comunication extends AppCompatActivity {
         //mp_2_LineChart = (LineChart) findViewById(R.id.line_chart);
 
         dateTextview = findViewById(R.id.dateTextID);
-
-
+        // <data base>
+        dataSource = new DataSource(this);
+        dataSource.open();
+        dataSource.clear();
+        // </data base>
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -266,7 +272,7 @@ public class Comunication extends AppCompatActivity {
 
     private void showNotification(float receivedFloatAlertData, String key) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(getApplicationContext(), CHANNEL_ID);
-        builder.setSmallIcon(R.drawable.ic_launcher_background);
+        builder.setSmallIcon(R.drawable.ic_priority_high_black_24dp);
         builder.setContentTitle("Caution!");
         if (key == "K") {
             builder.setContentText("High temperature value: " + receivedFloatAlertData + " C");
@@ -284,21 +290,27 @@ public class Comunication extends AppCompatActivity {
 
         System.out.println(globalData);
         JSONObject mainObject = null;
+
         try {
             mainObject = new JSONObject(globalData);
             {
                 String temperatureValue = mainObject.getString("temperature");
                 receivedFloatTemperatureData = Float.parseFloat(temperatureValue);
-                if (receivedFloatTemperatureData > 25.00) {
+                if (receivedFloatTemperatureData > 28.00) {
                     showNotification(receivedFloatTemperatureData, "K");
                 }
                 if (temparatureDataCounter == 0) {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
+                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData); //database
+                    dataSource.createSensor(receivedSensor);          // database
+
                 } else if (receivedFloatTemperatureData == dataVals2.get(temparatureDataCounter - 1).getY()) {
                 } else {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
+                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData); //database
+                    dataSource.createSensor(receivedSensor);          // database
                 }
 
 
@@ -312,13 +324,22 @@ public class Comunication extends AppCompatActivity {
                 if (humunityDataCounter == 0) {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
+                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData); //database
+                    dataSource.createSensor(receivedSensor);          // database
                 }
                 if (receivedFloatHumunityData == dataVals3.get(humunityDataCounter - 1).getY()) {
                 } else {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
+                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData); //database
+                    dataSource.createSensor(receivedSensor);          // database
                 }
 
+            }
+            ArrayList<Sensor> receivedSensorsArray = dataSource.listele(); // database
+            for(int i=0 ; i< receivedSensorsArray.size() ; ++i)     // database
+            {
+                System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue());
             }
             showGraph(selectedGraph);
 
