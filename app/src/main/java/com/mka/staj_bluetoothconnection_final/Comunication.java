@@ -8,6 +8,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
+import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -16,6 +17,7 @@ import android.bluetooth.BluetoothSocket;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -26,6 +28,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.DatePicker;
 import android.widget.NumberPicker;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,9 +61,13 @@ public class Comunication extends AppCompatActivity {
     int humunityDataCounter = 0;
     int valueCounter = 0;
     float receivedFloatData;
-    float receivedFloatTemperatureData,receivedFloatHumunityData,AlertingHumunityValue;
+    float receivedFloatTemperatureData, receivedFloatHumunityData;
+    float  AlertingValue, AlertingHumunityValue, AlertingTemperatureValue;
 
-    float AlertingTemperatureValue;
+    SharedPreferences sharedPref;
+
+
+
     String globalData;
     boolean selectedGraph = false;
     String currentDateTimeString;
@@ -89,8 +97,9 @@ public class Comunication extends AppCompatActivity {
     static final UUID myUUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
 
     TextView dateTextview;
-    Context context= this;
+    Context context = this;
     private Toolbar toolbar;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,7 +118,15 @@ public class Comunication extends AppCompatActivity {
         // <toolbar ending>
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        // </ toolbar ending>
+        // </ toolbar ending>1
+         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        AlertingTemperatureValue = sharedPref.getFloat("AlertingTemperatureValue",(float)30.00);
+        Toast.makeText(getApplicationContext(),"Current Temperature Alert Value "+AlertingTemperatureValue,Toast.LENGTH_SHORT).show();
+
+        AlertingHumunityValue =sharedPref.getFloat("AlertingHumunityValue",(float)30.00);
+        Toast.makeText(getApplicationContext(),"Current Humudity Alert Value "+AlertingHumunityValue,Toast.LENGTH_SHORT).show();
+
+
 
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
         //mp_2_LineChart = (LineChart) findViewById(R.id.line_chart);
@@ -118,7 +135,7 @@ public class Comunication extends AppCompatActivity {
         // <data base>
         dataSource = new DataSource(this);
         dataSource.open();
-       // dataSource.clear();
+        // dataSource.clear();
 
         // </data base>
         TemperatureGraphButton.setOnClickListener(new View.OnClickListener() {
@@ -175,6 +192,7 @@ public class Comunication extends AppCompatActivity {
         new BTbaglan().execute();
 
     }
+
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -184,76 +202,105 @@ public class Comunication extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        int id =item.getItemId();
-        if(id == R.id.action_notification) {
-            NumberPicker myNumberPicker = new NumberPicker(this);
-            myNumberPicker.setMinValue(0);
+        int id = item.getItemId();
+        if (id == R.id.action_notification) {
+
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            final View mView = getLayoutInflater().inflate(R.layout.notification, null);
+
+
+            NumberPicker myNumberPicker = (NumberPicker) mView.findViewById(R.id.numberPickerID);
+            myNumberPicker.setMinValue(1);
             myNumberPicker.setMaxValue(100);
 
             NumberPicker.OnValueChangeListener onValueChangeListener = new NumberPicker.OnValueChangeListener() {
                 @Override
                 public void onValueChange(NumberPicker numberPicker, int i, int i1) {
                     //Toast.makeText(getApplicationContext(), i1+" ", Toast.LENGTH_SHORT).show();
-                    dateTextview.setText(""+i1);
-                    AlertingHumunityValue=(float)i1;
+                    //dateTextview.setText(""+i1);
+
+                    // Toast.makeText(getApplicationContext(),"Selected Radio Button: "+radioButton.getText(),Toast.LENGTH_LONG).show();
+
+                    AlertingValue = (float) i1;
+
                 }
             };
             myNumberPicker.setOnValueChangedListener(onValueChangeListener);
-            AlertDialog.Builder builder = new AlertDialog.Builder(this).setView(myNumberPicker);
-            builder.setTitle("Notification Value").setIcon(R.drawable.ic_add_alert_black_24dp);
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            TextView okeyTextView = mView.findViewById(R.id.okeyTextID);
+            okeyTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
+                public void onClick(View view) {
+                    RadioGroup radioGroup = mView.findViewById(R.id.radioGroupID);
+                    int radioID = radioGroup.getCheckedRadioButtonId();
+                    RadioButton radioButton = mView.findViewById(radioID);
+                    SharedPreferences.Editor editor = sharedPref.edit();
+                    if(radioButton.getText().equals("Temperature"))
+                    {
+                        AlertingTemperatureValue=AlertingValue;
+
+                        editor.putFloat("AlertingTemperatureValue",AlertingTemperatureValue);
+                        //editor.putInt("intValue",value); //int değer kayıt eklemek için kullanıyoruz.
+                        //editor.putString("stringValue",stringValue); //string değer kayıt etmek için kullanıyoruz.
+                        editor.commit(); //Kayıt.
+                        Toast.makeText(getApplicationContext(),"Temperature Notification Value is Updated( "+AlertingTemperatureValue+" )", Toast.LENGTH_LONG).show();
+
+                    }
+
+                    if(radioButton.getText().equals("Humudity"))
+                    {
+                        AlertingHumunityValue = AlertingValue;
+                        editor.putFloat("AlertingHumunityValue",AlertingHumunityValue);
+                        editor.commit(); //Kayıt.
+
+                        Toast.makeText(getApplicationContext(),"Humudity Notification Value is Updated( "+AlertingHumunityValue+" )", Toast.LENGTH_LONG).show();
+                    }
+
+
 
 
                 }
             });
+            TextView cancelTextView = mView.findViewById(R.id.cancelTextID);
 
-            builder.setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-
-                }
-            });
-            builder.show();
+            builder.setView(mView);
+            AlertDialog dialog = builder.create();
+            dialog.show();
         }
 
-        if(id == R.id.action_delete)
-        {
+        if (id == R.id.action_delete) {
             AlertDialog.Builder alert = new AlertDialog.Builder(this);
             alert.setTitle("Deleting Data Base");
             alert.setMessage("Are you sure?");
             alert.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                    Toast.makeText(getApplicationContext(),"Datas Deleted",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getApplicationContext(), "Datas Deleted", Toast.LENGTH_SHORT).show();
 
                 }
 
-                });
+            });
             alert.setNegativeButton("No", new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialogInterface, int i) {
-                   // Toast.makeText(getApplicationContext(),"",Toast.LENGTH_SHORT).show();
+                    // Toast.makeText(getApplicationContext(),"",Toast.LENGTH_SHORT).show();
                 }
             });
             alert.create().show();
 
-            }
+        }
 
 
-        if(id == R.id.action_past)
-        {
+        if (id == R.id.action_past) {
             Calendar nowTıme = Calendar.getInstance();
-            int year =nowTıme.get(Calendar.YEAR);
+            int year = nowTıme.get(Calendar.YEAR);
             int month = nowTıme.get(Calendar.MONTH);
             int day = nowTıme.get(Calendar.DAY_OF_MONTH);
 
             DatePickerDialog datePickerDialog = new DatePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                    System.out.println(i+" "+i1+" "+i2);
-                    Toast.makeText(getApplicationContext(),i+" "+i1+" "+i2,Toast.LENGTH_SHORT).show();
+                    System.out.println(i + " " + i1 + " " + i2);
+                    Toast.makeText(getApplicationContext(), i + " " + i1 + " " + i2, Toast.LENGTH_SHORT).show();
                 }
             }, year, month, day);
 
@@ -262,15 +309,14 @@ public class Comunication extends AppCompatActivity {
             DatePickerDialog datePickerDialog2 = new DatePickerDialog(context, AlertDialog.THEME_HOLO_LIGHT, new DatePickerDialog.OnDateSetListener() {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
-                    System.out.println(i+" "+i1+" "+i2);
-                    Toast.makeText(getApplicationContext(),i+" "+i1+" "+i2,Toast.LENGTH_SHORT).show();
+                    System.out.println(i + " " + i1 + " " + i2);
+                    Toast.makeText(getApplicationContext(), i + " " + i1 + " " + i2, Toast.LENGTH_SHORT).show();
 
                 }
             }, year, month, day);
 
             datePickerDialog2.setTitle("Start date of chart to display");
             datePickerDialog2.show();
-
 
 
         }
@@ -290,6 +336,7 @@ public class Comunication extends AppCompatActivity {
             mpLineChart.setDrawBorders(true);
             mpLineChart.setBorderColor(Color.BLUE);
             mpLineChart.setBorderWidth(2);
+            mpLineChart.setNoDataTextColor(Color.BLACK);
             // </ editing line chart>
 
             LineDataSet lineDataSet1 = new LineDataSet(dataVals2, "Temperature");
@@ -371,20 +418,20 @@ public class Comunication extends AppCompatActivity {
             {
                 String temperatureValue = mainObject.getString("temperature");
                 receivedFloatTemperatureData = Float.parseFloat(temperatureValue);
-                if (receivedFloatTemperatureData > 28.00) {
+                if (receivedFloatTemperatureData > AlertingTemperatureValue) {
                     showNotification(receivedFloatTemperatureData, "K");
                 }
                 if (temparatureDataCounter == 0) {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
-                    currentDateTimeString=DateFormat.getDateTimeInstance().format(new Date());
+                    currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
                     /*
                     currentDateTimeString = String.valueOf(System.currentTimeMillis());
                     Calendar cal = Calendar.getInstance();
                     cal.setTimeInMillis(Long.parseLong(currentDateTimeString));
                     cal.get(Calendar.HOUR_OF_DAY);
                     */
-                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData,currentDateTimeString); //database
+                    Sensor receivedSensor = new Sensor("temperature", receivedFloatTemperatureData, currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
 
                 } else if (receivedFloatTemperatureData == dataVals2.get(temparatureDataCounter - 1).getY()) {
@@ -392,7 +439,7 @@ public class Comunication extends AppCompatActivity {
                     dataVals2.add(new Entry(temparatureDataCounter, receivedFloatTemperatureData));
                     temparatureDataCounter++;
                     currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                    Sensor receivedSensor = new Sensor("temperature",receivedFloatTemperatureData,currentDateTimeString); //database
+                    Sensor receivedSensor = new Sensor("temperature", receivedFloatTemperatureData, currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
 
@@ -408,7 +455,7 @@ public class Comunication extends AppCompatActivity {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
                     currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData,currentDateTimeString); //database
+                    Sensor receivedSensor = new Sensor("humunity", receivedFloatHumunityData, currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
                 if (receivedFloatHumunityData == dataVals3.get(humunityDataCounter - 1).getY()) {
@@ -416,7 +463,7 @@ public class Comunication extends AppCompatActivity {
                     dataVals3.add(new Entry(humunityDataCounter, receivedFloatHumunityData));
                     humunityDataCounter++;
                     currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-                    Sensor receivedSensor = new Sensor("humunity",receivedFloatHumunityData,currentDateTimeString); //database
+                    Sensor receivedSensor = new Sensor("humunity", receivedFloatHumunityData, currentDateTimeString); //database
                     dataSource.createSensor(receivedSensor);          // database
                 }
 
