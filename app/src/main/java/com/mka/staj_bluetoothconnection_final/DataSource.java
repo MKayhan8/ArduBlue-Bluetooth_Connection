@@ -58,4 +58,42 @@ public class DataSource {
         }
         return  arrayList;
     }
+    public ArrayList<Sensor> Overlistele(String key)
+    {
+        ArrayList<Sensor> arrayList = new ArrayList<Sensor>();
+        if(key.equals("T"))
+        {
+            String columns[] = {"sensorName","sensorValue","currentDateTimeString"};
+            Cursor c = db.rawQuery("SELECT * FROM Sensor where sensorName='temperature'", null); c.moveToFirst();
+
+            while(!c.isAfterLast())
+            {
+                String sensorName = c.getString(0);
+                float sensorValue = c.getFloat(1);
+                String sensorDate = c.getString(2);
+                Sensor s = new Sensor(sensorName,sensorValue,sensorDate);
+                arrayList.add(s);
+                c.moveToNext();
+            }
+
+        }
+        else if (key.equals("H"))
+        {
+            String columns[] = {"sensorName","sensorValue","currentDateTimeString"};
+            Cursor c = db.rawQuery("SELECT * FROM Sensor where sensorName='humunity'", null); c.moveToFirst();
+
+            while(!c.isAfterLast())
+            {
+                String sensorName = c.getString(0);
+                float sensorValue = c.getFloat(1);
+                String sensorDate = c.getString(2);
+                Sensor s = new Sensor(sensorName,sensorValue,sensorDate);
+                arrayList.add(s);
+                c.moveToNext();
+            }
+
+        }
+
+        return  arrayList;
+    }
 }

@@ -30,6 +30,7 @@ import android.widget.DatePicker;
 import android.widget.NumberPicker;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -57,15 +58,16 @@ public class Comunication extends AppCompatActivity {
 
     ArrayList<Entry> dataVals2 = new ArrayList<Entry>();
     ArrayList<Entry> dataVals3 = new ArrayList<Entry>();
+    ArrayList<Entry> dataValsPast = new ArrayList<Entry>();
+    int pastCounter=0;
     int temparatureDataCounter = 0;
     int humunityDataCounter = 0;
     int valueCounter = 0;
     float receivedFloatData;
     float receivedFloatTemperatureData, receivedFloatHumunityData;
-    float  AlertingValue, AlertingHumunityValue, AlertingTemperatureValue;
+    float AlertingValue, AlertingHumunityValue, AlertingTemperatureValue;
 
     SharedPreferences sharedPref;
-
 
 
     String globalData;
@@ -100,7 +102,7 @@ public class Comunication extends AppCompatActivity {
     Context context = this;
     private Toolbar toolbar;
 
-
+    static final int[] receivedDateArray = new int[6];
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,13 +121,12 @@ public class Comunication extends AppCompatActivity {
         toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         // </ toolbar ending>1
-         sharedPref = this.getPreferences(Context.MODE_PRIVATE);
-        AlertingTemperatureValue = sharedPref.getFloat("AlertingTemperatureValue",(float)30.00);
-        Toast.makeText(getApplicationContext(),"Current Temperature Alert Value "+AlertingTemperatureValue,Toast.LENGTH_SHORT).show();
+        sharedPref = this.getPreferences(Context.MODE_PRIVATE);
+        AlertingTemperatureValue = sharedPref.getFloat("AlertingTemperatureValue", (float) 30.00);
+        Toast.makeText(getApplicationContext(), "Current Temperature Alert Value " + AlertingTemperatureValue, Toast.LENGTH_SHORT).show();
 
-        AlertingHumunityValue =sharedPref.getFloat("AlertingHumunityValue",(float)30.00);
-        Toast.makeText(getApplicationContext(),"Current Humudity Alert Value "+AlertingHumunityValue,Toast.LENGTH_SHORT).show();
-
+        AlertingHumunityValue = sharedPref.getFloat("AlertingHumunityValue", (float) 30.00);
+        Toast.makeText(getApplicationContext(), "Current Humudity Alert Value " + AlertingHumunityValue, Toast.LENGTH_SHORT).show();
 
 
         mpLineChart = (LineChart) findViewById(R.id.line_chart);
@@ -234,28 +235,24 @@ public class Comunication extends AppCompatActivity {
                     int radioID = radioGroup.getCheckedRadioButtonId();
                     RadioButton radioButton = mView.findViewById(radioID);
                     SharedPreferences.Editor editor = sharedPref.edit();
-                    if(radioButton.getText().equals("Temperature"))
-                    {
-                        AlertingTemperatureValue=AlertingValue;
+                    if (radioButton.getText().equals("Temperature")) {
+                        AlertingTemperatureValue = AlertingValue;
 
-                        editor.putFloat("AlertingTemperatureValue",AlertingTemperatureValue);
+                        editor.putFloat("AlertingTemperatureValue", AlertingTemperatureValue);
                         //editor.putInt("intValue",value); //int değer kayıt eklemek için kullanıyoruz.
                         //editor.putString("stringValue",stringValue); //string değer kayıt etmek için kullanıyoruz.
                         editor.commit(); //Kayıt.
-                        Toast.makeText(getApplicationContext(),"Temperature Notification Value is Updated( "+AlertingTemperatureValue+" )", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Temperature Notification Value is Updated( " + AlertingTemperatureValue + " )", Toast.LENGTH_LONG).show();
 
                     }
 
-                    if(radioButton.getText().equals("Humudity"))
-                    {
+                    if (radioButton.getText().equals("Humudity")) {
                         AlertingHumunityValue = AlertingValue;
-                        editor.putFloat("AlertingHumunityValue",AlertingHumunityValue);
+                        editor.putFloat("AlertingHumunityValue", AlertingHumunityValue);
                         editor.commit(); //Kayıt.
 
-                        Toast.makeText(getApplicationContext(),"Humudity Notification Value is Updated( "+AlertingHumunityValue+" )", Toast.LENGTH_LONG).show();
+                        Toast.makeText(getApplicationContext(), "Humudity Notification Value is Updated( " + AlertingHumunityValue + " )", Toast.LENGTH_LONG).show();
                     }
-
-
 
 
                 }
@@ -265,6 +262,7 @@ public class Comunication extends AppCompatActivity {
             builder.setView(mView);
             AlertDialog dialog = builder.create();
             dialog.show();
+
         }
 
         if (id == R.id.action_delete) {
@@ -300,9 +298,12 @@ public class Comunication extends AppCompatActivity {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                     System.out.println(i + " " + i1 + " " + i2);
+                    receivedDateArray[3]=i; receivedDateArray[4]=i1; receivedDateArray[5]=i2;
                     Toast.makeText(getApplicationContext(), i + " " + i1 + " " + i2, Toast.LENGTH_SHORT).show();
+                    showPastGraph(receivedDateArray,selectedGraph);
+
                 }
-            }, year, month, day);
+            },year, month ,day  );
 
             datePickerDialog.setTitle("Finish date of chart to display");
             datePickerDialog.show();
@@ -310,7 +311,9 @@ public class Comunication extends AppCompatActivity {
                 @Override
                 public void onDateSet(DatePicker datePicker, int i, int i1, int i2) {
                     System.out.println(i + " " + i1 + " " + i2);
+                    receivedDateArray[0]=i; receivedDateArray[1]=i1; receivedDateArray[2]=i2;
                     Toast.makeText(getApplicationContext(), i + " " + i1 + " " + i2, Toast.LENGTH_SHORT).show();
+
 
                 }
             }, year, month, day);
@@ -319,8 +322,228 @@ public class Comunication extends AppCompatActivity {
             datePickerDialog2.show();
 
 
+
         }
+
+
         return true;
+    }
+    private void showPastGraph(int[] dateArray,boolean selectedGraph)
+    {
+
+        if(selectedGraph)
+        {
+            System.out.println(selectedGraph);
+            ArrayList<Sensor> receivedSensorsArray = dataSource.Overlistele("T"); // database
+            for(int i=0 ; i< receivedSensorsArray.size() ; ++i)     // database
+            {
+                int[] array = new int[3];
+                //System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue()+" "+receivedSensorsArray.get(i).getCurrentDateTimeString());
+                String temp =receivedSensorsArray.get(i).getCurrentDateTimeString();
+                String[] parts = temp.split(" ");
+                switch(parts[0]) {
+                    case "Jan" :
+                        array[1]=1;
+                        break; // optional
+
+                    case "Feb" :
+                        array[1]=2;
+                        break; // optional
+                    case "Mar" :
+                        array[1]=3;
+                        break; // optional
+                    case "Apr" :
+                        array[1]=4;
+                        break; // optional
+                    case "May" :
+                        array[1]=5;
+                        break; // optional
+                    case "Jun" :
+                        array[1]=6;
+                        break; // optional
+                    case "Jul" :
+                        array[1]=7;
+                        break; // optional
+                    case "Aug" :
+                        array[1]=8;
+                        break; // optional
+                    case "Sep" :
+                        array[1]=9;
+                        break; // optional
+                    case "Oct" :
+                        array[1]=10;
+                        break; // optional
+                    case "Nov" :
+                        array[1]=11;
+                        break; // optional
+                    case "Dec" :
+                        array[1]=12;
+                        break; // optional
+
+                    // You can have any number of case statements.
+                    default : // Optional
+                        // Statements
+                }
+                parts[1] = parts[1].substring(0, parts[1].length() - 1);
+                array[2]=Integer.parseInt(parts[1]);
+                array[0] = Integer.parseInt(parts[2]);
+                String check = Integer.toString(array[0])+Integer.toString(array[1])+Integer.toString(array[2]);
+                String check2 = Integer.toString(dateArray[0])+Integer.toString(dateArray[1]+1)+Integer.toString(dateArray[2]);
+                String check3 = Integer.toString(dateArray[3])+Integer.toString(dateArray[4]+1)+Integer.toString(dateArray[5]);
+                System.out.println(check+" "+check2+" "+check3);
+                if(Integer.parseInt(check)>= Integer.parseInt(check2) && Integer.parseInt(check)<= Integer.parseInt(check3) )
+                {
+                    dataValsPast.add(new Entry(pastCounter, receivedSensorsArray.get(i).getSensorValue()));
+                    System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).currentDateTimeString);
+                    System.out.println(receivedSensorsArray.get(i).getSensorValue());
+                    pastCounter++;
+                }
+                System.out.println(dataValsPast.size());
+
+            }
+
+            pastCounter=0;
+            mpLineChart.setVisibility(View.VISIBLE);
+
+            // < editing line chart >
+            mpLineChart.setDrawBorders(true);
+            mpLineChart.setBorderColor(Color.BLUE);
+            mpLineChart.setBorderWidth(2);
+            mpLineChart.setNoDataTextColor(Color.BLACK);
+            // </ editing line chart>
+
+            LineDataSet lineDataSet1 = new LineDataSet(dataValsPast, "Temperature");
+            // <editing lines>
+
+            lineDataSet1.setLineWidth(2);
+            lineDataSet1.setColor(Color.BLACK);
+            lineDataSet1.setDrawCircles(true);
+            lineDataSet1.setDrawCircleHole(true);
+            lineDataSet1.setCircleColor(Color.BLACK);
+            lineDataSet1.setCircleHoleColor(Color.BLUE);
+            lineDataSet1.setCircleRadius(3);
+            lineDataSet1.setCircleHoleRadius(2);
+            lineDataSet1.setValueTextColor(Color.GRAY);
+            lineDataSet1.setValueTextSize(10);
+            lineDataSet1.setDrawValues(true);
+            // </ editing lines >
+            ArrayList<ILineDataSet> dataSets2 = new ArrayList<>();
+            dataSets2.add(lineDataSet1);
+            LineData data2 = new LineData(dataSets2);
+            mpLineChart.setData(data2);
+            mpLineChart.invalidate();
+
+
+
+        }
+        else{
+            System.out.println(selectedGraph);
+            ArrayList<Sensor> receivedSensorsArray = dataSource.Overlistele("H"); // database
+            for(int i=0 ; i< receivedSensorsArray.size() ; ++i)     // database
+            {
+                int[] array = new int[3];
+                //System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue()+" "+receivedSensorsArray.get(i).getCurrentDateTimeString());
+                String temp =receivedSensorsArray.get(i).getCurrentDateTimeString();
+                String[] parts = temp.split(" ");
+                switch(parts[0]) {
+                    case "Jan" :
+                        array[1]=1;
+                        break; // optional
+
+                    case "Feb" :
+                        array[1]=2;
+                        break; // optional
+                    case "Mar" :
+                        array[1]=3;
+                        break; // optional
+                    case "Apr" :
+                        array[1]=4;
+                        break; // optional
+                    case "May" :
+                        array[1]=5;
+                        break; // optional
+                    case "Jun" :
+                        array[1]=6;
+                        break; // optional
+                    case "Jul" :
+                        array[1]=7;
+                        break; // optional
+                    case "Aug" :
+                        array[1]=8;
+                        break; // optional
+                    case "Sep" :
+                        array[1]=9;
+                        break; // optional
+                    case "Oct" :
+                        array[1]=10;
+                        break; // optional
+                    case "Nov" :
+                        array[1]=11;
+                        break; // optional
+                    case "Dec" :
+                        array[1]=12;
+                        break; // optional
+
+                    // You can have any number of case statements.
+                    default : // Optional
+                        // Statements
+                }
+                parts[1] = parts[1].substring(0, parts[1].length() - 1);
+                array[2]=Integer.parseInt(parts[1]);
+                array[0] = Integer.parseInt(parts[2]);
+                String check = Integer.toString(array[0])+Integer.toString(array[1])+Integer.toString(array[2]);
+                String check2 = Integer.toString(dateArray[0])+Integer.toString(dateArray[1]+1)+Integer.toString(dateArray[2]);
+                String check3 = Integer.toString(dateArray[3])+Integer.toString(dateArray[4]+1)+Integer.toString(dateArray[5]);
+                System.out.println(check+" "+check2+" "+check3);
+                if(Integer.parseInt(check)>= Integer.parseInt(check2) && Integer.parseInt(check)<= Integer.parseInt(check3) )
+                {
+                    dataValsPast.add(new Entry(pastCounter, receivedSensorsArray.get(i).getSensorValue()));
+                    System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).currentDateTimeString);
+                    pastCounter++;
+                }
+
+
+
+
+            }
+            pastCounter=0;
+            mpLineChart.setVisibility(View.VISIBLE);
+
+            // < editing line chart >
+            mpLineChart.setDrawBorders(true);
+            mpLineChart.setBorderColor(Color.BLUE);
+            mpLineChart.setBorderWidth(2);
+            mpLineChart.setNoDataTextColor(Color.BLACK);
+            // </ editing line chart>
+
+            LineDataSet lineDataSet = new LineDataSet(dataValsPast, "Huminity");
+            // <editing lines>
+
+            lineDataSet.setLineWidth(2);
+            lineDataSet.setColor(Color.BLACK);
+            lineDataSet.setDrawCircles(true);
+            lineDataSet.setDrawCircleHole(true);
+            lineDataSet.setCircleColor(Color.BLACK);
+            lineDataSet.setCircleHoleColor(Color.BLUE);
+            lineDataSet.setCircleRadius(3);
+            lineDataSet.setCircleHoleRadius(2);
+            lineDataSet.setValueTextColor(Color.GRAY);
+            lineDataSet.setValueTextSize(10);
+            lineDataSet.setDrawValues(true);
+            // </ editing lines >
+            ArrayList<ILineDataSet> dataSets = new ArrayList<>();
+            dataSets.add(lineDataSet);
+            System.out.println(dataSets.size());
+            LineData data = new LineData(dataSets);
+            mpLineChart.setData(data);
+            mpLineChart.invalidate();
+
+
+
+        }
+        dataValsPast.clear();
+
+
     }
 
     private void showGraph(boolean selectedGraph) {
@@ -468,8 +691,9 @@ public class Comunication extends AppCompatActivity {
                 }
 
             }
-            ArrayList<Sensor> receivedSensorsArray = dataSource.listele(); // database
             /*
+            ArrayList<Sensor> receivedSensorsArray = dataSource.listele(); // database
+
             for(int i=0 ; i< receivedSensorsArray.size() ; ++i)     // database
             {
                 System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).getSensorValue()+" "+receivedSensorsArray.get(i).getCurrentDateTimeString());
