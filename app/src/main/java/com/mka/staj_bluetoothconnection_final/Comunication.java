@@ -394,11 +394,12 @@ public class Comunication extends AppCompatActivity {
                 if(Integer.parseInt(check)>= Integer.parseInt(check2) && Integer.parseInt(check)<= Integer.parseInt(check3) )
                 {
                     dataValsPast.add(new Entry(pastCounter, receivedSensorsArray.get(i).getSensorValue()));
-                    System.out.println(receivedSensorsArray.get(i).getSensorName()+" "+receivedSensorsArray.get(i).currentDateTimeString);
-                    System.out.println(receivedSensorsArray.get(i).getSensorValue());
+                   System.out.println(pastCounter+" ,"+dataValsPast.get(pastCounter));
                     pastCounter++;
+
                 }
-                System.out.println(dataValsPast.size());
+
+
 
             }
 
@@ -414,7 +415,7 @@ public class Comunication extends AppCompatActivity {
 
             LineDataSet lineDataSet1 = new LineDataSet(dataValsPast, "Temperature");
             // <editing lines>
-
+            System.out.println(lineDataSet1.getEntryCount());
             lineDataSet1.setLineWidth(2);
             lineDataSet1.setColor(Color.BLACK);
             lineDataSet1.setDrawCircles(true);
@@ -502,9 +503,6 @@ public class Comunication extends AppCompatActivity {
                     pastCounter++;
                 }
 
-
-
-
             }
             pastCounter=0;
             mpLineChart.setVisibility(View.VISIBLE);
@@ -516,24 +514,23 @@ public class Comunication extends AppCompatActivity {
             mpLineChart.setNoDataTextColor(Color.BLACK);
             // </ editing line chart>
 
-            LineDataSet lineDataSet = new LineDataSet(dataValsPast, "Huminity");
+            LineDataSet lineDataSet1 = new LineDataSet(dataValsPast, "Huminity");
             // <editing lines>
 
-            lineDataSet.setLineWidth(2);
-            lineDataSet.setColor(Color.BLACK);
-            lineDataSet.setDrawCircles(true);
-            lineDataSet.setDrawCircleHole(true);
-            lineDataSet.setCircleColor(Color.BLACK);
-            lineDataSet.setCircleHoleColor(Color.BLUE);
-            lineDataSet.setCircleRadius(3);
-            lineDataSet.setCircleHoleRadius(2);
-            lineDataSet.setValueTextColor(Color.GRAY);
-            lineDataSet.setValueTextSize(10);
-            lineDataSet.setDrawValues(true);
+            lineDataSet1.setLineWidth(2);
+            lineDataSet1.setColor(Color.BLACK);
+            lineDataSet1.setDrawCircles(true);
+            lineDataSet1.setDrawCircleHole(true);
+            lineDataSet1.setCircleColor(Color.BLACK);
+            lineDataSet1.setCircleHoleColor(Color.BLUE);
+            lineDataSet1.setCircleRadius(3);
+            lineDataSet1.setCircleHoleRadius(2);
+            lineDataSet1.setValueTextColor(Color.GRAY);
+            lineDataSet1.setValueTextSize(10);
+            lineDataSet1.setDrawValues(false);
             // </ editing lines >
             ArrayList<ILineDataSet> dataSets = new ArrayList<>();
-            dataSets.add(lineDataSet);
-            System.out.println(dataSets.size());
+            dataSets.add(lineDataSet1);
             LineData data = new LineData(dataSets);
             mpLineChart.setData(data);
             mpLineChart.invalidate();
