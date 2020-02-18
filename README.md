@@ -8,5 +8,5 @@ Datas from temperature, humidity, acceleration and pressure sensors can be given
 ## History
 <img src="screenshots/history.png" alt="Repo List" width="250" height="whatever">
 
-## Notification
+## Notification Settings
 <img src="screenshots/notification.png" alt="Repo List" width="250" height="whatever">
